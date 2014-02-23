@@ -3,7 +3,7 @@ module pikaiaGAs
 
 importall Base
 
-export pikaia
+export pikaia, seed
 
 #  Common block to make iseed visible to rninit (and to save
 type seed
