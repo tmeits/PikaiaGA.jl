@@ -6,7 +6,9 @@ importall Base
 export pikaia
 
 #  Common block to make iseed visible to rninit (and to save
-iseed=11
+type seed
+    iseed::Int
+end
 
 function pikaia(ff, n, ctrl, xb, fb, status)
 # Optimization (maximization) of user-supplied "fitness" function
