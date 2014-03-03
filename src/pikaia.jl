@@ -18,7 +18,7 @@ f :: Float64 = 0.
 status :: Int = 0
 
 x = rand(n)
-print(ff(n, x))
+println(n, x, ff(n, x))
 # Return in typle
 return (x, f, status)
 end # pikaia
