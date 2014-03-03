@@ -8,4 +8,9 @@ Source
 
 An Pikaia.jl transliteration of the original FORTRAN-77 has been produced by Sarah Gibson, and is available directly by http://download.hao.ucar.edu/archive/pikaia/pikaia.f.
 
+Links
+======
+
+http://www.ecy.wa.gov/programs/eap/models.html
+
 
