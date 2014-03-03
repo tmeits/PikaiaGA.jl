@@ -28,6 +28,34 @@ const DEFAULT = [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
             ctrl[i] = DEFAULT[i]
         end
     end
+    np     = int(ctrl[1])
+    ngen   = int(ctrl[2])
+    nd     = int(ctrl[3])
+    pcross = ctrl[4]
+    imut   = int(ctrl[5])
+    pmut   = ctrl[6]
+    pmutmn = ctrl[7]
+    pmutmx = ctrl[8]
+    fdif   = ctrl[9]
+    irep   = int(ctrl[10])
+    ielite = int(ctrl[11])
+    ivrb   = int(ctrl[12])
+    status = 0
+
+    return (status, np, ngen, nd, imut, irep, ielite, ivrb, 
+        pcross, pmutmn, pmutmx, pmut, fdif)
+
+end
+
+function  rnkpop(n:: Int, arrin:: Array{Float64, 1})
+# Compute the key index
+    rank = rand(n)
+    indx = rqsort(n, arrin, [1: n])
+# ...and the rank order
+    for i = 1 : n
+        rank[indx[i]] = n - i + 1
+    end
+    return (indx, rank)
 end
 
 function pikaia(ff:: Function, n:: Int, ctrl:: Array{Float64, 1})
@@ -52,9 +80,35 @@ const DMAX = 6    # DMAX is the maximum number of Genes (digits) per Chromosome 
     status :: Int = 0
 
 # Set control variables from input and defaults
-    setctl(ctrl)
+    (status, np, ngen, nd, imut, irep, ielite, ivrb, 
+        pcross, pmutmn, pmutmx, pmut, fdif) = setctl(ctrl)
+    if status != 0
+        println(" Control vector (ctrl) argument(s) invalid")
+        return (x, f, status)
+    end
+# Make sure locally-dimensioned arrays are big enough
+    if  n > NMAX || np > PMAX || nd > DMAX 
+        println(" Number of parameters, population, or genes too large")
+        status = -1
+        return (x, f, status)
+    end
 
-#println(n, x, ff(n, x))
+# Compute initial (random but bounded) phenotypes
+    for ip = 1 : np
+        for k = 1 : n
+            oldph[k, ip] = urand()
+        end
+    end
+# Rank initial population by fitness order
+    (ifit, jfit) = rnkpop(np, fitns)
+
+# Main Generation Loop
+    for ig = 1 : ngen
+# Main Population Loop
+        newtot = 0
+        for ip = 1 : np / 2
+        end # End of Main Population Loop
+    end # End of Main Generation Loop 
 
 # Return in typle
 return (x, f, status)
