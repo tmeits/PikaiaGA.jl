@@ -42,6 +42,10 @@ const DEFAULT = [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
     ivrb   = int(ctrl[12])
     status = 0
 
+# Print a header
+    if ivrb > 0
+        @printf("%60s %7d %7.2f\n","*", 1, 1.2)
+    end
     return (status, np, ngen, nd, imut, irep, ielite, ivrb, 
         pcross, pmutmn, pmutmx, pmut, fdif)
 
