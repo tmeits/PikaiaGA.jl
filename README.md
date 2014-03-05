@@ -1,7 +1,7 @@
 Pikaia.jl
 ======
 
-Welcome to the Pikaia.jl homepage. Pikaia (pronounced "Pee-kah-yah") is a general purpose function optimization Julia Lang module based on a genetic algorithm.
+Welcome to the Pikaia.jl homepage. http://tmeits.github.io/pikaia.jl Pikaia (pronounced "Pee-kah-yah") is a general purpose function optimization Julia Lang module based on a genetic algorithm.
 
 Source
 ======
