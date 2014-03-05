@@ -20,7 +20,7 @@ function urand()
 return rand()
 end
 
-function setctl(ctrl:: Array{Float64, 1})
+function setctl(ctrl:: Array{Float64, 1}, n:: Int)
 # Set control variables and flags from input and defaults
 const DEFAULT = [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
     for i=1:length(ctrl)
@@ -44,8 +44,85 @@ const DEFAULT = [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
 
 # Print a header
     if ivrb > 0
-        @printf("%60s %7d %7.2f\n","*", 1, 1.2)
+        @printf("******************************************************************\n")
+        @printf("*            Pikaia Genetic Algorithm Report                     *\n")
+        @printf("******************************************************************\n")
+        @printf("   Number of Generations evolving: %4i\n", ngen)
+        @printf("       Individuals per generation: %4i\n", np)
+        @printf("    Number of Chromosome segments: %4i\n", n)
+        @printf("    Length of Chromosome segments: %4i\n", nd)
+        @printf("            Crossover probability: %9.4f\n", pcross)
+        @printf("            Initial mutation rate: %9.4f\n", pmut)
+        @printf("            Minimum mutation rate: %9.4f\n", pmutmn)
+        @printf("            Maximum mutation rate: %9.4f\n", pmutmx)
+        @printf("    Relative fitness differential: %9.4f\n", fdif)
+       
+        if imut == 1
+            @printf("                    Mutation Mode: Uniform, Constant Rate\n")
+        elseif imut == 2
+            @printf("                    Mutation Mode: Uniform, Variable Rate (F)\n")
+        elseif imut == 3
+            @printf("                    Mutation Mode: Uniform, Variable Rate (D)\n")
+        elseif imut == 4
+            @printf("                    Mutation Mode: Uniform+Creep, Constant Rate\n")
+        elseif imut == 5
+            @printf("                    Mutation Mode: Uniform+Creep, Variable Rate (F)\n")
+        elseif imut == 6
+            @printf("                    Mutation Mode: Uniform+Creep, Variable Rate (D)\n")
+        end
+        if irep == 1 
+            @printf("                Reproduction Plan: Full generational replacement\n")
+        elseif irep == 2
+            @printf("                Reproduction Plan: Steady-state-replace-random\n")
+        elseif irep == 3
+            @printf("                Reproduction Plan: Steady-state-replace-worst\n")
+        end
     end
+# Check some control values
+    if imut != 1 && imut != 2 && imut != 3 && imut != 4 && imut != 5 && imut != 6
+        @printf(" ERROR: illegal value for imut (ctrl(5))\n")
+        status = 5
+    end
+
+    if fdif > 1
+        @printf(" ERROR: illegal value for fdif (ctrl(9))\n")
+        status = 9
+    end
+
+    if irep != 1 && irep != 2 && irep != 3
+        @printf(" ERROR: illegal value for irep (ctrl(10))\n")
+        status = 10
+    end
+
+    if pcross > 1.0 || pcross < 0.0
+        @printf(" ERROR: illegal value for pcross (ctrl(4))\n")
+        status = 4
+    end
+
+    if ielite  != 1.0 && ielite != 1
+        @printf(" ERROR: illegal value for ielite (ctrl(11))\n")
+        status = 11
+    end
+
+    if irep == 1 && imut == 1 && pmut > 0.5 && ielite == 0
+        @printf(" WARNING: dangerously high value for pmut (ctrl(6));\n")
+        @printf(" (Should enforce elitism with ctrl(11)=1.)\n")
+    end
+
+    if irep == 1 && imut == 2 && pmutmx > 0.5 && ielite == 0
+        @printf(" WARNING: dangerously high value for pmutmx (ctrl(8));\n")
+        @printf(" (Should enforce elitism with ctrl(11)=1.)\n")
+    end
+
+    if fdif < 0.33 && irep != 3
+        @printf(" WARNING: dangerously low value of fdif (ctrl(9))\n") 
+    end
+
+    if mod(np, 2) > 0
+        np = np - 1
+        @printf("WARNING: decreasing population size (ctrl(1)) to np= %4i\n", np)
+    end
+
     return (status, np, ngen, nd, imut, irep, ielite, ivrb, 
         pcross, pmutmn, pmutmx, pmut, fdif)
 
@@ -85,7 +162,7 @@ const DMAX = 6    # DMAX is the maximum number of Genes (digits) per Chromosome 
 
 # Set control variables from input and defaults
     (status, np, ngen, nd, imut, irep, ielite, ivrb, 
-        pcross, pmutmn, pmutmx, pmut, fdif) = setctl(ctrl)
+        pcross, pmutmn, pmutmx, pmut, fdif) = setctl(ctrl, n)
     if status != 0
         println(" Control vector (ctrl) argument(s) invalid")
         return (x, f, status)
