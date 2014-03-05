@@ -200,4 +200,4 @@ end # Pikaia
 # #3F3434 #DFE8E2
 # http://habrahabr.ru/post/161009/
 # https://github.com/johnmyleswhite/HopfieldNets.jl
-
+# http://habrahabr.ru/post/125999/
