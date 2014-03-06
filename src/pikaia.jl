@@ -41,7 +41,7 @@ const DEFAULT = [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
     ielite = int(ctrl[11])
     ivrb   = int(ctrl[12])
     status = 0
-
+st
 # Print a header
     if ivrb > 0
         @printf("******************************************************************\n")
@@ -139,6 +139,18 @@ function  rnkpop(n:: Int, arrin:: Array{Float64, 1})
     return (indx, rank)
 end
 
+function select(np:: Int, jfit:: Array{Int, 1}, fdif:: Float64)
+# Selects a parent from the population, using roulette wheel
+# algorithm with the relative fitnesses of the phenotypes as
+# the "hit" probabilities [see Davis 1991, chap. 1].
+    idad = 0
+    np1 = np + 1
+    dice = urand()*np*np1
+    rtfit = 0.
+
+    return idad
+end
+
 function pikaia(ff:: Function, n:: Int, ctrl:: Array{Float64, 1})
 # Optimization (maximization) of user-supplied "fitness" function
 # ff  over n-dimensional parameter space  x  using a basic genetic
@@ -186,7 +198,7 @@ const DMAX = 6    # DMAX is the maximum number of Genes (digits) per Chromosome 
 # Main Generation Loop
     for ig = 1 : ngen
 # Main Population Loop
-        newtot = 0
+        newtot = 0  
         for ip = 1 : np / 2
         end # End of Main Population Loop
     end # End of Main Generation Loop 
