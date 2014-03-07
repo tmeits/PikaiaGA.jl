@@ -144,11 +144,34 @@ function select(np:: Int, jfit:: Array{Int, 1}, fdif:: Float64)
 # algorithm with the relative fitnesses of the phenotypes as
 # the "hit" probabilities [see Davis 1991, chap. 1].
     idad = 0
+
     np1 = np + 1
     dice = urand()*np*np1
     rtfit = 0.
-
+    for i= 1 : np
+        rtfit = rtfit+np1+fdif*(np1-2*jfit[i])
+        if rtfit >= dice
+            idad=i
+            break
+        end
+    end
     return idad
+end
+
+function init_pop(n:: Int, np:: Int)
+# Compute initial (random but bounded) phenotypes
+    old_ph = Array(Float64, n, np)
+    for ip = 1 : np
+        for k = 1 : n
+            old_ph[k, ip] = urand()
+        end
+    end
+    return old_ph
+end
+
+function newpop(ff:: Function, ielite:: Int, ndim:: Int, n:: Int, np:: Int, oldph:: Array{Float64, 1})
+# replaces old population by new; recomputes fitnesses & ranks
+
 end
 
 function pikaia(ff:: Function, n:: Int, ctrl:: Array{Float64, 1})
@@ -186,6 +209,8 @@ const DMAX = 6    # DMAX is the maximum number of Genes (digits) per Chromosome 
         return (x, f, status)
     end
 
+    oldph = Array(Float64, n, np)
+
 # Compute initial (random but bounded) phenotypes
     for ip = 1 : np
         for k = 1 : n
@@ -195,11 +220,21 @@ const DMAX = 6    # DMAX is the maximum number of Genes (digits) per Chromosome 
 # Rank initial population by fitness order
     (ifit, jfit) = rnkpop(np, fitns)
 
-# Main Generation Loop
+#   Main Generation Loop
     for ig = 1 : ngen
-# Main Population Loop
+
+#       Main Population Loop
         newtot = 0  
         for ip = 1 : np / 2
+
+#           1. pick two parents
+            while true
+                ip1 = select(np,jfit,fdif)
+                ip2 = select(np,jfit,fdif)
+                if ip1 != ip2
+                    break
+                end
+            end
         end # End of Main Population Loop
     end # End of Main Generation Loop 
 
@@ -213,3 +248,4 @@ end # Pikaia
 # http://habrahabr.ru/post/161009/
 # https://github.com/johnmyleswhite/HopfieldNets.jl
 # http://habrahabr.ru/post/125999/
+# http://julialang.org/gsoc/2014/
