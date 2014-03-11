@@ -149,6 +149,7 @@ function select(np:: Int, jfit:: Array{Int, 1}, fdif:: Float64)
 # Selects a parent from the population, using roulette wheel
 # algorithm with the relative fitnesses of the phenotypes as
 # the "hit" probabilities [see Davis 1991, chap. 1].
+    
     idad = 0
 
     np1 = np + 1
@@ -214,13 +215,20 @@ function pikaia(ff:: Function, n:: Int, ctrl:: Array{Float64, 1})
 
 # Version 0.0.1   [ 2014 February 21 ]
 
-const NMAX = 32   # NMAX is the maximum number of adjustable parameters (n <= NMAX)
-const PMAX = 128  # PMAX is the maximum population (ctrl(1) <= PMAX)
-const DMAX = 6    # DMAX is the maximum number of Genes (digits) per Chromosome segement (parameter) (ctrl(3) <= DMAX)
+const NMAX = 52   # NMAX is the maximum number of adjustable parameters (n <= NMAX)
+const PMAX = 928  # PMAX is the maximum population (ctrl(1) <= PMAX)
+const DMAX = 32   # (default 6) DMAX is the maximum number of Genes (digits) per Chromosome segement (parameter) (ctrl(3) <= DMAX)
 
 #  Local variables
 
-    fitns = rand(PMAX)
+    gn1 = [1 : NMAX*DMAX]
+    gn2 = [1 : NMAX*DMAX]
+    fitns = rand(PMAX) # init collections
+    ifit = [1 : PMAX]
+    jfit = [1 : PAMX]
+
+    ph = rand(NMAX, 2)
+    newph = rand(NMAX, PMAX)
 
 #   Init output:
     x = Array{Float64, n}
