@@ -181,6 +181,57 @@ function init_pop(ff:: Function, n:: Int, np:: Int)
     return (old_ph, fitns, ifit, jfit)
 end
 
+function encode!(n:: Int, nd:: Int, ph:: Array{Float64, 1}, gn:: Array{Int, 1})
+# encode phenotype parameters into integer genotype
+# ph(k) are x,y coordinates [ 0 < x,y < 1 ]
+    
+    z = 10.^nd
+    ii = 0
+    for i = 1 : n
+        ip = int(ph[i]*z)
+        for j = reverse([1 : nd])
+            gn[ii+j] = mod(ip, 10)
+        end
+        ii = ii + nd
+    end
+    gn
+end
+
+function cross!(n:: Int, nd:: Int, pcross:: Float64, gn1:: Array{Int,1}, gn2:: Array{Int, 1})
+# breeds two parent chromosomes into two offspring chromosomes
+# breeding occurs through crossover. If the crossover probability
+# test yields true (crossover taking place), either one-point or
+# two-point crossover is used, with equal probabilities.
+#
+# Compatibility with version 1.0: To enforce 100% use of one-point
+# crossover, un-comment appropriate line in source code below
+
+#   Use crossover probability to decide whether a crossover occurs
+    if urand() < pcross
+#       Compute first crossover point
+        ispl = int(urand()*n*nd) + 1
+#       Now choose between one-point and two-point crossover 
+        if urand() < 0.5
+            ispl2 = n*nd
+        else
+            ispl2 = int(urand()*n*nd) + 1
+#           Un-comment following line to enforce one-point crossover
+#           ispl2=n*nd
+            if ispl2 < ispl
+                itmp = ispl2
+                ispl2 = ispl
+                ispl = itmp
+            end
+        end
+#       Swap genes from ispl to ispl2
+        for i = [ispl : ispl2]
+            t = gn2[i]
+            gn2[i] = gn1[i]
+            gn1[i] = t
+        end
+    end
+    gn1, gn2
+end
 function newpop(ff:: Function, ielite:: Int, ndim:: Int, n:: Int, np:: Int, oldph:: Array{Float64, 1})
 # replaces old population by new; recomputes fitnesses & ranks
     
@@ -219,17 +270,6 @@ const NMAX = 52   # NMAX is the maximum number of adjustable parameters (n <= NM
 const PMAX = 928  # PMAX is the maximum population (ctrl(1) <= PMAX)
 const DMAX = 32   # (default 6) DMAX is the maximum number of Genes (digits) per Chromosome segement (parameter) (ctrl(3) <= DMAX)
 
-#  Local variables
-
-    gn1 = [1 : NMAX*DMAX]
-    gn2 = [1 : NMAX*DMAX]
-    fitns = rand(PMAX) # init collections
-    ifit = [1 : PMAX]
-    jfit = [1 : PAMX]
-
-    ph = rand(NMAX, 2)
-    newph = rand(NMAX, PMAX)
-
 #   Init output:
     x = Array{Float64, n}
     x = rand(n)
@@ -250,6 +290,17 @@ const DMAX = 32   # (default 6) DMAX is the maximum number of Genes (digits) per
         status = -1
         return (x, f, status)
     end
+
+#  Local variables
+
+    gn1 = [1 : n*nd]
+    gn2 = [1 : n*nd]
+    fitns = rand(np) 
+    ifit = [1 : np]
+    jfit = [1 : np]
+
+    ph = rand(NMAX, 2)
+    newph = rand(NMAX, PMAX)
 
     (old_ph, fitns, ifit, jfit) = init_pop(ff, n, np)
 
@@ -273,13 +324,20 @@ const DMAX = 32   # (default 6) DMAX is the maximum number of Genes (digits) per
         for ip = 1 : np / 2
 
 #           1. pick two parents
+            ip1 = select(np,jfit,fdif)
             while true
-                ip1 = select(np,jfit,fdif)
                 ip2 = select(np,jfit,fdif)
                 if ip1 != ip2
                     break
                 end
             end
+#           2. encode parent phenotypes
+            encode!(n, nd, oldph[:, ip1], gn1)
+            encode!(n, nd, oldph[:, ip2], gn2)
+
+#           3. breed
+            cross(n, nd, pcross, gn1, gn2)
+            
         end # End of Main Population Loop
     end # End of Main Generation Loop 
 
