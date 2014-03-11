@@ -5,7 +5,10 @@ importall Base
 
 export 
     pikaia, 
-    rqsort
+    rqsort,
+    init_pop,
+    newpop,
+    urand
 
 function rqsort(n:: Int, a:: Array{Float64, 1}, p:: Array{Int, 1})
 # Return integer array p which indexes array a in increasing order.
@@ -129,10 +132,13 @@ st
 end
 
 function  rnkpop(n:: Int, arrin:: Array{Float64, 1})
-# Compute the key index
-    rank = rand(n)
+# Calls external sort routine to produce key index and rank order
+# of input array arrin (which is not altered).
+
+#   Compute the key index
+    rank = [1:n] #rand(n)
     indx = rqsort(n, arrin, [1: n])
-# ...and the rank order
+#   ...and the rank order
     for i = 1 : n
         rank[indx[i]] = n - i + 1
     end
@@ -158,20 +164,47 @@ function select(np:: Int, jfit:: Array{Int, 1}, fdif:: Float64)
     return idad
 end
 
-function init_pop(n:: Int, np:: Int)
-# Compute initial (random but bounded) phenotypes
+function init_pop(ff:: Function, n:: Int, np:: Int)
+#   Compute initial (random but bounded) phenotypes
     old_ph = Array(Float64, n, np)
+    fitns = Array(Float64, np)
+#   old_ph = rand(n, np)
     for ip = 1 : np
         for k = 1 : n
             old_ph[k, ip] = urand()
         end
+        fitns[ip] = ff(n, old_ph[:,ip])
     end
-    return old_ph
+#   Rank initial population by fitness order
+    (ifit, jfit) = rnkpop(np, fitns)
+    return (old_ph, fitns, ifit, jfit)
 end
 
 function newpop(ff:: Function, ielite:: Int, ndim:: Int, n:: Int, np:: Int, oldph:: Array{Float64, 1})
 # replaces old population by new; recomputes fitnesses & ranks
+    
+    nnew = np
+#   if using elitism, introduce in new population fittest of old
+#   population (if greater than fitness of the individual it is
+#   to replace)
+    if ielite == 1 && ff(n, newph[1,1]) < fitns[ifit[n]]
+        for k = 1 : n
+            newph[k, 1] = oldph[k, ifit[np]]
+        end
+        nnew = nnew - 1
+    end
 
+#   replace population
+    for i = 1 : np
+        for l = 1 : n
+            oldph[k, i] = newph[k, i]
+        end
+#       get fitness using caller's fitness function
+        fitns[i]=ff(n,oldph[1,i])        
+    end
+#   compute new population fitness rank order
+    rnkpop(np,fitns,ifit,jfit)
+    return
 end
 
 function pikaia(ff:: Function, n:: Int, ctrl:: Array{Float64, 1})
@@ -187,38 +220,42 @@ const DMAX = 6    # DMAX is the maximum number of Genes (digits) per Chromosome 
 
 #  Local variables
 
+    fitns = rand(PMAX)
 
-# Init output:
+#   Init output:
     x = Array{Float64, n}
     x = rand(n)
 
     f :: Float64 = 0.
     status :: Int = 0
 
-# Set control variables from input and defaults
+#   Set control variables from input and defaults
     (status, np, ngen, nd, imut, irep, ielite, ivrb, 
         pcross, pmutmn, pmutmx, pmut, fdif) = setctl(ctrl, n)
     if status != 0
         println(" Control vector (ctrl) argument(s) invalid")
         return (x, f, status)
     end
-# Make sure locally-dimensioned arrays are big enough
+#   Make sure locally-dimensioned arrays are big enough
     if  n > NMAX || np > PMAX || nd > DMAX 
         println(" Number of parameters, population, or genes too large")
         status = -1
         return (x, f, status)
     end
 
-    oldph = Array(Float64, n, np)
+    (old_ph, fitns, ifit, jfit) = init_pop(ff, n, np)
 
-# Compute initial (random but bounded) phenotypes
-    for ip = 1 : np
-        for k = 1 : n
-            oldph[k, ip] = urand()
-        end
-    end
-# Rank initial population by fitness order
-    (ifit, jfit) = rnkpop(np, fitns)
+#    oldph = Array(Float64, n, np)
+
+#   Compute initial (random but bounded) phenotypes
+#    for ip = 1 : np
+#        for k = 1 : n
+#            oldph[k, ip] = urand()
+#        end
+#        fitns[ip] = ff(n, oldph[1,ip])
+#    end
+#   Rank initial population by fitness order
+#    (ifit, jfit) = rnkpop(np, fitns)
 
 #   Main Generation Loop
     for ig = 1 : ngen
