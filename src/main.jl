@@ -1,4 +1,4 @@
-# Sample driver program for Pikaia.jl
+# Sample driver program for pikaia.jl
 
 function twod(n:: Int, x:: Array{Float64, 1})
 # Compute sample fitness function (2-d landscape)
