@@ -17,4 +17,4 @@ ng = [1: 55*6]
 ng = [1: 55*6]
 @test Pikaia.encode(55, 6, rand(55), ng)  !=  [1: 55*6]
 
-
+@test Pikaia.mutate!(55,9, 0.85, [1 : 55*9], 1) != [1 : 55*9]

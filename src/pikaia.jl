@@ -8,7 +8,10 @@ export
     rqsort,
     init_pop,
     newpop,
-    urand
+    urand,
+    encode,
+    cross!,
+    mutate!
 
 function rqsort(n:: Int, a:: Array{Float64, 1}, p:: Array{Int, 1})
 # Return integer array p which indexes array a in increasing order.
@@ -232,6 +235,95 @@ function cross!(n:: Int, nd:: Int, pcross:: Float64, gn1:: Array{Int,1}, gn2:: A
     end
     gn1, gn2
 end
+
+function mutate!(n:: Int, nd:: Int, pmut:: Float64, gn:: Array{Int, 1}, imut:: Int)
+# Mutations occur at rate pmut at all gene loci
+#   imut=1    Uniform mutation, constant rate
+#   imut=2    Uniform mutation, variable rate based on fitness
+#   imut=3    Uniform mutation, variable rate based on distance
+#   imut=4    Uniform or creep mutation, constant rate
+#   imut=5    Uniform or creep mutation, variable rate based on fitness
+#   imut=6    Uniform or creep mutation, variable rate based on distance
+
+    fix_it_up = false
+
+#   Decide which type of mutation is to occur
+    if imut > 4 && urand() < 0.5
+#       CREEP MUTATION OPERATOR
+#       Subject each locus to random +/- 1 increment at the rate pmut
+        for i = 1 : n
+            for j = 1 : nd
+                if urand() < pmut
+#                   Construct integer
+                    loc = (i - 1)*nd + j
+                    inc = round( urand() ) * 2 - 1
+                    ist = (i - 1)*nd + 1
+                    gn[loc] = gn[loc]+inc
+
+                    fix_it_up == false
+#                   @printf("%6i %6i %6i", ist, loc, inc)
+#                   This is where we carry over the one (up to two digits)
+#                   first take care of decrement below 0 case
+                    if inc < 0 && gn[loc] < 0
+                        if j == 1
+                            gn[loc] = 0
+                        else
+                            for k = reverse([(ist+1) : loc])
+                                gn[k] = 9
+                                gn[k - 1] = gn[k - 1] - 1
+                                if gn[k - 1] > 0
+                                    fix_it_up = true
+                                    break
+                                end
+                            end
+#                           we popped under 0.00000 lower bound; fix it up
+                            if fix_it_up == false
+                                if gn[ist] < 0
+                                    for l = ist : loc
+                                        gn[l] = 0
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    fix_it_up == false
+                    if inc > 0 && gn[loc] > 9
+                        if j == 1
+                            gn[loc] = 9
+                        else
+                            for k = reverse([(ist+1) : loc])
+                                gn[k] = 9
+                                gn[k - 1] = gn[k - 1] + 1
+                                if gn[k - 1] < 9
+                                    fix_it_up = true
+                                    break
+                                end
+                            end
+#                           we popped over 9.99999 upper bound; fix it up
+                            if fix_it_up == false
+                                if gn[ist] > 9
+                                    for l = ist : loc
+                                        gn[l] = 9
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end # j
+        end # i
+    else
+#   UNIFORM MUTATION OPERATOR
+#   Subject each locus to random mutation at the rate pmut
+        for i = 1 : (n*nd)
+            if urand() < pmut
+                gn[i] = int(urand() * 10.0)
+            end
+        end
+    end
+    gn
+end
+
 function newpop(ff:: Function, ielite:: Int, ndim:: Int, n:: Int, np:: Int, oldph:: Array{Float64, 1})
 # replaces old population by new; recomputes fitnesses & ranks
     
@@ -336,8 +428,16 @@ const DMAX = 32   # (default 6) DMAX is the maximum number of Genes (digits) per
             encode!(n, nd, oldph[:, ip2], gn2)
 
 #           3. breed
-            cross(n, nd, pcross, gn1, gn2)
-            
+            cross!(n, nd, pcross, gn1, gn2)
+            mutate!(n, nd, pmut, gn1, imut)
+            mutate!(n, nd, pmut, gn2, imut)
+
+#           4. decode offspring genotypes 
+
+
+
+#           5. insert into population
+
         end # End of Main Population Loop
     end # End of Main Generation Loop 
 
