@@ -200,6 +200,29 @@ function encode!(n:: Int, nd:: Int, ph:: Array{Float64, 1}, gn:: Array{Int, 1})
     gn
 end
 
+function decode(n:: Int, nd:: Int, gn:: Array{Int, 1})
+# decode genotype into phenotype parameters
+# ph(k) are x,y coordinates [ 0 < x,y < 1 ]
+    
+    ph = Float64[]
+
+#   z = 10.^(-nd)
+#   a^(-b) = 1/ ( a^b)
+    z = 1 / (10.^nd)
+    ii = 0
+    for i = 1 : n
+        ip = 0
+        for j = 1 : nd
+            ip = 10 * ip+gn[ii+j]
+        end
+#        ph[i]=ip*z
+        push!(ph, ip*z)
+        ii=ii+nd
+    end
+    ph
+end
+
+
 function cross!(n:: Int, nd:: Int, pcross:: Float64, gn1:: Array{Int,1}, gn2:: Array{Int, 1})
 # breeds two parent chromosomes into two offspring chromosomes
 # breeding occurs through crossover. If the crossover probability
@@ -433,7 +456,7 @@ const DMAX = 32   # (default 6) DMAX is the maximum number of Genes (digits) per
             mutate!(n, nd, pmut, gn2, imut)
 
 #           4. decode offspring genotypes 
-
+            decode!()
 
 
 #           5. insert into population

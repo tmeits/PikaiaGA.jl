@@ -18,3 +18,8 @@ ng = [1: 55*6]
 @test Pikaia.encode(55, 6, rand(55), ng)  !=  [1: 55*6]
 
 @test Pikaia.mutate!(55,9, 0.85, [1 : 55*9], 1) != [1 : 55*9]
+
+pop_ph=rand(50,850);
+gn=Pikaia.encode!(50,6,pop_ph[:,1],[1:50*6]);
+Pikaia.decode(50, 5, gn);
+
