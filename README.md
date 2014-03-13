@@ -14,6 +14,10 @@ Links
 ======
 
 http://www.ecy.wa.gov/programs/eap/models.html
+
 http://lavag.org/topic/10984-cr-waptia-genetic-optimization-algorithm/
+
 http://arxiv.org/pdf/0711.2478.pdf
+
+http://www.ast.cam.ac.uk/~vasily/solber/
 

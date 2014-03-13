@@ -184,6 +184,37 @@ function init_pop(ff:: Function, n:: Int, np:: Int)
     return (old_ph, fitns, ifit, jfit)
 end
 
+function new_pop(ff:: Function, ielite:: Int, ndim:: Int, n:: Int, np:: Int, 
+    oldph:: Array{Float64, 1}, fitns:: Array{Float64, 1})
+# replaces old population by new; recomputes fitnesses & ranks
+    
+    nnew = np
+    newph = oldph
+
+#   if using elitism, introduce in new population fittest of old
+#   population (if greater than fitness of the individual it is
+#   to replace)
+    if ielite == 1 && ff(n, newph[1,1]) < fitns[ifit[n]]
+        for k = 1 : n
+            newph[k, 1] = oldph[k, ifit[np]]
+        end
+        nnew = nnew - 1
+    end
+
+#   replace population
+    for i = 1 : np
+        for l = 1 : n
+            oldph[k, i] = newph[k, i]
+        end
+#       get fitness using caller's fitness function
+        fitns[i]=ff(n,oldph[1,i])        
+    end
+#   compute new population fitness rank order
+    (ifit, jfit) = rnkpop(np,fitns,ifit,jfit)
+    return (newph, fitns, ifit, jfit)
+end
+
+
 function encode!(n:: Int, nd:: Int, ph:: Array{Float64, 1}, gn:: Array{Int, 1})
 # encode phenotype parameters into integer genotype
 # ph(k) are x,y coordinates [ 0 < x,y < 1 ]
@@ -347,33 +378,6 @@ function mutate!(n:: Int, nd:: Int, pmut:: Float64, gn:: Array{Int, 1}, imut:: I
     gn
 end
 
-function newpop(ff:: Function, ielite:: Int, ndim:: Int, n:: Int, np:: Int, oldph:: Array{Float64, 1})
-# replaces old population by new; recomputes fitnesses & ranks
-    
-    nnew = np
-#   if using elitism, introduce in new population fittest of old
-#   population (if greater than fitness of the individual it is
-#   to replace)
-    if ielite == 1 && ff(n, newph[1,1]) < fitns[ifit[n]]
-        for k = 1 : n
-            newph[k, 1] = oldph[k, ifit[np]]
-        end
-        nnew = nnew - 1
-    end
-
-#   replace population
-    for i = 1 : np
-        for l = 1 : n
-            oldph[k, i] = newph[k, i]
-        end
-#       get fitness using caller's fitness function
-        fitns[i]=ff(n,oldph[1,i])        
-    end
-#   compute new population fitness rank order
-    rnkpop(np,fitns,ifit,jfit)
-    return
-end
-
 function pikaia(ff:: Function, n:: Int, ctrl:: Array{Float64, 1})
 # Optimization (maximization) of user-supplied "fitness" function
 # ff  over n-dimensional parameter space  x  using a basic genetic
@@ -386,11 +390,10 @@ const PMAX = 928  # PMAX is the maximum population (ctrl(1) <= PMAX)
 const DMAX = 32   # (default 6) DMAX is the maximum number of Genes (digits) per Chromosome segement (parameter) (ctrl(3) <= DMAX)
 
 #   Init output:
-    x = Array{Float64, n}
+    
     x = rand(n)
-
-    f :: Float64 = 0.
-    status :: Int = 0
+    f = 0.
+    status  = 0
 
 #   Set control variables from input and defaults
     (status, np, ngen, nd, imut, irep, ielite, ivrb, 
@@ -414,7 +417,7 @@ const DMAX = 32   # (default 6) DMAX is the maximum number of Genes (digits) per
     ifit = [1 : np]
     jfit = [1 : np]
 
-    ph = rand(NMAX, 2)
+    ph = rand(n, 2)
     newph = rand(NMAX, PMAX)
 
     (old_ph, fitns, ifit, jfit) = init_pop(ff, n, np)
@@ -456,14 +459,38 @@ const DMAX = 32   # (default 6) DMAX is the maximum number of Genes (digits) per
             mutate!(n, nd, pmut, gn2, imut)
 
 #           4. decode offspring genotypes 
-            decode!()
-
-
+            ph[:,1] = decode(n, nd, gn1)
+            ph[:,2] = decode(n, nd, gn2)
 #           5. insert into population
-
+            if irep == 1
+                genrep()
+            else
+                stdrep()
+                newtot=newtot+new
+            end
         end # End of Main Population Loop
+
+#       if running full generational replacement: swap populations
+        if irep = 1
+            (old_ph, fitns, ifit, jfit) = new_pop(ff, ielite, ndim, n, np, oldph, fitns)
+        end
+
+#       adjust mutation rate?
+        if imut == 2 || imut == 3 || imut == 5 || imut == 6
+            adjmut()
+        end
+
+        if ivrb > 0
+            report()
+        end
+
     end # End of Main Generation Loop 
 
+#   Return best phenotype and its fitness
+    for k = 1 : n
+        x[k] = oldph[k, ifits[np]]
+    end
+    f = fitns[ifit[np]]
 # Return in typle
 return (x, f, status)
 end # pikaia
@@ -475,3 +502,5 @@ end # Pikaia
 # https://github.com/johnmyleswhite/HopfieldNets.jl
 # http://habrahabr.ru/post/125999/
 # http://julialang.org/gsoc/2014/
+
+ftp://soft1.sfu-kras.ru/soft/Office/Project_Expert_7.53/
