@@ -503,4 +503,3 @@ end # Pikaia
 # http://habrahabr.ru/post/125999/
 # http://julialang.org/gsoc/2014/
 
-ftp://soft1.sfu-kras.ru/soft/Office/Project_Expert_7.53/
