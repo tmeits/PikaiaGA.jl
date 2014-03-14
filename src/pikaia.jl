@@ -134,6 +134,23 @@ st
 
 end
 
+# call genrep(NMAX,n,np,ip,ph,newph)
+function generational_replacement(n:: Int, np:: Int, ip:: Int, 
+    phenotype:: Array{Float64, 1})
+# full generational replacement: accumulate offspring into new population array
+
+    new_phenotype = Float64[]
+
+#   Insert one offspring pair into new population
+    i1=2*ip-1
+    i2=i1+1
+    for k=1:n
+        push!(new_phenotype[k, i1], phenotypes[k, 1])
+        push!(new_phenotype[k, i2], phenotypes[k, 2])
+    end
+    new_phenotype
+end
+
 function  rnkpop(n:: Int, arrin:: Array{Float64, 1})
 # Calls external sort routine to produce key index and rank order
 # of input array arrin (which is not altered).
@@ -502,4 +519,3 @@ end # Pikaia
 # https://github.com/johnmyleswhite/HopfieldNets.jl
 # http://habrahabr.ru/post/125999/
 # http://julialang.org/gsoc/2014/
-
