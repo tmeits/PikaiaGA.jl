@@ -133,6 +133,17 @@ const DEFAULT = [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
 
 end
 
+function report(ivrb::Int, ndim::Int, n::Int, np::Int, nd::Int, 
+    oldph::Array{Float64,2}, fitns::Array{Float64,1}, ifit::Array{Int,1}, pmut:: Float64,
+    ig::Int, nnew::Int)
+# Write generation report to standard output
+     
+    rpt = false
+
+    if pmut != pmutpv
+    return
+end    
+
 # call genrep(NMAX,n,np,ip,ph,newph)
 function generational_replacement(n:: Int, np:: Int, ip:: Int, 
     phenotype:: Array{Float64, 1})
