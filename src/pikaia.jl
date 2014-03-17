@@ -26,7 +26,7 @@ function urand()
 return rand()
 end
 
-function setctl(ctrl:: Array{Float64, 1}, n:: Int)
+function setctl(ctrl::Array{Float64, 1}, n:: Int)
 # Set control variables and flags from input and defaults
 const DEFAULT = [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
     for i=1:length(ctrl)
@@ -47,7 +47,6 @@ const DEFAULT = [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
     ielite = int(ctrl[11])
     ivrb   = int(ctrl[12])
     status = 0
-st
 # Print a header
     if ivrb > 0
         @printf("******************************************************************\n")
@@ -149,6 +148,74 @@ function generational_replacement(n:: Int, np:: Int, ip:: Int,
         push!(new_phenotype[k, i2], phenotypes[k, 2])
     end
     new_phenotype
+end
+
+function steady_state_reproduction(ff::Function, ndim::Int, n::Int, np::Int, irep::Int, 
+    ielite::Int, ph::Array{Float64,2}, oldph:: Array{Float64,2}, fitns:: Array{Float64,1},
+    ifit::Array{Int,1},jfit::Array{Int,1})
+# steady-state reproduction: insert offspring pair into population
+# only if they are fit enough (replace-random if irep=2 or replace-worst if irep=3).
+
+    nnew = 0
+    goto_j = false
+    for j=1:2
+#       1. compute offspring fitness (with caller's fitness function)
+        fit = ff(n, ph[1, j])
+        
+#       2. if fit enough, insert in population
+        for i=reverse(1:np)
+            if fit > fitns[ifit[i]]
+#               make sure the phenotype is not already in the population
+                if i < np
+                    for k=1:n
+                        if oldph[k, ifit[i+1]] != ph[k,j]
+                            goto_j=true
+                            break
+                        end
+                    end # k
+                end # i
+                if goto_j == true
+                    break
+                else
+#                   offspring is fit enough for insertion, and is unique
+ 
+#                   (i) insert phenotype at appropriate place in population
+                    if irep == 3
+                        i1=1
+                    elseif ielite == 0 || i == np
+                        i1=int(urand()*np)+1
+                    else
+                        i1=int(urand()*(np-1))+1
+                    end
+                    if1=ifit[i1]
+                    fitns[if1]=fit
+                    for k=1:n
+                        oldph[k,if1]=ph[k,j]
+                    end
+#                   (ii) shift and update ranking arrays
+                    if i < i1
+#                       shift up 
+                        jfit[if1]=np-i
+                        for k=reverse((i+1):(i1-1))
+                            jfit[ifit[k]] = jfit[ifit[k]]-1
+                            ifit[k+1]=ifit[k]
+                        end
+                        ifit[i]=if1
+                    else
+#                       shift down
+                        jfit[if1]=np-i+1
+                        for k=(i1+1):i
+                            jfit[ifit[k]] = jfit[ifit[k]]+1
+                            ifit[k-1]=ifit[k]
+                        end
+                        ifit[i]=if1
+                    end
+                    nnew = nnew+1
+                    break
+                end # goto_j
+            end   
+        end # i
+    end # j
 end
 
 function  rnkpop(n:: Int, arrin:: Array{Float64, 1})
@@ -488,7 +555,7 @@ const DMAX = 32   # (default 6) DMAX is the maximum number of Genes (digits) per
         end # End of Main Population Loop
 
 #       if running full generational replacement: swap populations
-        if irep = 1
+        if irep == 1
             (old_ph, fitns, ifit, jfit) = new_pop(ff, ielite, ndim, n, np, oldph, fitns)
         end
 
@@ -519,3 +586,4 @@ end # Pikaia
 # https://github.com/johnmyleswhite/HopfieldNets.jl
 # http://habrahabr.ru/post/125999/
 # http://julialang.org/gsoc/2014/
+#http://omega.sp.susu.ac.ru/books/conference/PaVT2008/papers/Short_Papers/030.pdf
