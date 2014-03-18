@@ -13,6 +13,10 @@ export
     cross!,
     mutate!
 
+global _bestft::Float64
+global _pmutpv::Float64
+
+    
 function rqsort(n:: Int, a:: Array{Float64, 1}, p:: Array{Int, 1})
 # Return integer array p which indexes array a in increasing order.
 # Array a is not disturbed.
@@ -29,6 +33,10 @@ end
 function setctl(ctrl::Array{Float64, 1}, n:: Int)
 # Set control variables and flags from input and defaults
 const DEFAULT = [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
+
+    global _bestft::Float64 = 0.0
+    global _pmutpv::Float64 = 0.0
+
     for i=1:length(ctrl)
         if ctrl[i] < 0.
             ctrl[i] = DEFAULT[i]
@@ -137,11 +145,38 @@ function report(ivrb::Int, ndim::Int, n::Int, np::Int, nd::Int,
     oldph::Array{Float64,2}, fitns::Array{Float64,1}, ifit::Array{Int,1}, pmut:: Float64,
     ig::Int, nnew::Int)
 # Write generation report to standard output
-     
+    
+    global _bestft
+    global _pmutpv
+
     rpt = false
 
-    if pmut != pmutpv
-    return
+    if pmut != _pmutpv
+        _pmutpv = pmut
+        rpt = true
+    end
+
+    if fitns[ifit[np]] != _bestft
+        _bestft = fitns[ifit[np]]
+        rpt = true
+    end
+
+    if rpt == true || ivrb > 2
+
+#       nint() rounds a real to the nearest result integer
+#       Power of 10 to make integer genotypes for display
+        ndpwr = iround(10.^nd)
+
+        @printf(" %6i %6i %10.6f %10.6f %10.6f %10.6f \n",
+            ig, nnew, pmut, fitns[ifit[np]], fitns[ifit[np-1]], fitns[ifit[np/2]])
+        for k=1:n
+            @printf(" %10i  %10i  %10i",
+                iround(ndpwr*oldph[k,ifit[np]]),
+                iround(ndpwr*oldph[k,ifit[np-1]]),
+                iround(ndpwr*oldph[k,ifit[np/2]]))
+        end
+    end
+    return true
 end    
 
 # call genrep(NMAX,n,np,ip,ph,newph)
