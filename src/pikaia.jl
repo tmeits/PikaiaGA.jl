@@ -1,4 +1,5 @@
-
+# The Julia Language: a fresh approach to technical computing.
+# Pikaia is a general purpose function optimization Julia lang module based on a genetic algorithm.
 module Pikaia
 
 importall Base
@@ -11,7 +12,9 @@ export
     urand,
     encode,
     cross!,
-    mutate!
+    mutate!,
+    report,
+    adjustment!
 
 global _bestft::Float64
 global _pmutpv::Float64
@@ -508,6 +511,43 @@ function mutate!(n:: Int, nd:: Int, pmut:: Float64, gn:: Array{Int, 1}, imut:: I
     gn
 end
 
+
+function adjustment!(ndim::Int, n::Int, np::Int, oldph::Array{Float64,2}, fitns::Array{Float64,1},
+    ifit::Array{Int,1}, pmutmn::Float64, pmutmx::Float64, pmut::Float64, imut::Int) 
+# dynamical adjustment of mutation rate;
+#    imut=2 or imut=5 : adjustment based on fitness differential
+#                       between best and median individuals
+#    imut=3 or imut=6 : adjustment based on metric distance
+#                       between best and median individuals
+
+c     dynamical adjustment of mutation rate;
+c        imut=2 or imut=5 : adjustment based on fitness differential
+c                           between best and median individuals
+c        imut=3 or imut=6 : adjustment based on metric distance
+c                           between best and median individuals
+
+    rdiflo=0.05; rdifhi=0.25; delta=1.5    
+    
+    if imut == 2 || imut == 5
+#   Adjustment based on fitness differential
+        rdif=abs(fitns[ifit[np]]-fitns[ifit[np/2]])/
+                (fitns[ifit[np]]+fitns[ifit[np/2]])
+    elseif imut == 3 || imut == 6 
+#   Adjustment based on normalized metric distance        
+        rdif=0.0
+        for i=1:n
+            rdif=rdif+( oldph[i,ifit[np]]-oldph[i,ifit[np/2]] )^2
+        end
+        rdif=sqrt(rdif) / float(n)
+    end
+
+    if rdif < rdiflo 
+        pmut=min(pmutmx,pmut*delta)
+    elseif
+        pmut=max(pmutmn,pmut/delta)
+    end
+end
+
 function pikaia(ff:: Function, n:: Int, ctrl:: Array{Float64, 1})
 # Optimization (maximization) of user-supplied "fitness" function
 # ff  over n-dimensional parameter space  x  using a basic genetic
@@ -632,4 +672,6 @@ end # Pikaia
 # https://github.com/johnmyleswhite/HopfieldNets.jl
 # http://habrahabr.ru/post/125999/
 # http://julialang.org/gsoc/2014/
-#http://omega.sp.susu.ac.ru/books/conference/PaVT2008/papers/Short_Papers/030.pdf
+# http://omega.sp.susu.ac.ru/books/conference/PaVT2008/papers/Short_Papers/030.pdf
+# http://www.hao.ucar.edu/modeling/pikaia/
+
