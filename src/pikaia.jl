@@ -16,8 +16,8 @@ export
     report,
     adjustment!
 
-global _bestft::Float64
-global _pmutpv::Float64
+global _bestft = 0.0
+global _pmutpv = 0.0
 
     
 function rqsort(n:: Int, a:: Array{Float64, 1}, p:: Array{Int, 1})
@@ -281,17 +281,21 @@ function  rnkpop(n:: Int, arrin:: Array{Float64, 1})
     return (indx, rank)
 end
 
-function select(np:: Int, jfit:: Array{Int, 1}, fdif:: Float64)
+# *********************************************************************
+function select(np::Int, jfit::Vector{Int}, fdif::Float64)
+# =====================================================================    
 # Selects a parent from the population, using roulette wheel
 # algorithm with the relative fitnesses of the phenotypes as
 # the "hit" probabilities [see Davis 1991, chap. 1].
-    
+# =====================================================================   
+
     idad = 0
 
-    np1 = np + 1
-    dice = urand()*np*np1
-    rtfit = 0.
-    for i= 1 : np
+    np1   = np+1 
+    dice  = urand()*np*np1
+    rtfit = 0.0
+
+    for i= 1:np
         rtfit = rtfit+np1+fdif*(np1-2*jfit[i])
         if rtfit >= dice
             idad=i
@@ -299,8 +303,9 @@ function select(np:: Int, jfit:: Array{Int, 1}, fdif:: Float64)
         end
     end
     return idad
-end
+end # select
 
+# *********************************************************************
 function init_pop(ff:: Function, n:: Int, np:: Int)
 #   Compute initial (random but bounded) phenotypes
     old_ph = Array(Float64, n, np)
@@ -520,13 +525,15 @@ function adjustment!(ndim::Int, n::Int, np::Int, oldph::Array{Float64,2}, fitns:
 #    imut=3 or imut=6 : adjustment based on metric distance
 #                       between best and median individuals
 
-c     dynamical adjustment of mutation rate;
-c        imut=2 or imut=5 : adjustment based on fitness differential
-c                           between best and median individuals
-c        imut=3 or imut=6 : adjustment based on metric distance
-c                           between best and median individuals
+#     dynamical adjustment of mutation rate;
+#        imut=2 or imut=5 : adjustment based on fitness differential
+#                           between best and median individuals
+#        imut=3 or imut=6 : adjustment based on metric distance
+#                           between best and median individuals
 
-    rdiflo=0.05; rdifhi=0.25; delta=1.5    
+    const rdiflo=0.05
+    const rdifhi=0.25
+    const delta=1.5    
     
     if imut == 2 || imut == 5
 #   Adjustment based on fitness differential
@@ -538,57 +545,77 @@ c                           between best and median individuals
         for i=1:n
             rdif=rdif+( oldph[i,ifit[np]]-oldph[i,ifit[np/2]] )^2
         end
-        rdif=sqrt(rdif) / float(n)
+        rdif=sqrt(rdif)/float(n)
     end
 
     if rdif < rdiflo 
-        pmut=min(pmutmx,pmut*delta)
-    elseif
-        pmut=max(pmutmn,pmut/delta)
+        pmut=min(pmutmx, pmut*delta)
+    elseif rdif > rdifhi
+        pmut=max(pmutmn, pmut/delta)
     end
 end
 
-function pikaia(ff:: Function, n:: Int, ctrl:: Array{Float64, 1})
+function pikaia(ff::Function, n::Int, ctrl::Array{Float64, 1})
 # Optimization (maximization) of user-supplied "fitness" function
 # ff  over n-dimensional parameter space  x  using a basic genetic
 # algorithm method.
 
 # Version 0.0.1   [ 2014 February 21 ]
 
-const NMAX = 52   # NMAX is the maximum number of adjustable parameters (n <= NMAX)
-const PMAX = 928  # PMAX is the maximum population (ctrl(1) <= PMAX)
-const DMAX = 32   # (default 6) DMAX is the maximum number of Genes (digits) per Chromosome segement (parameter) (ctrl(3) <= DMAX)
+#   Output: 
+    x = rand(n); f = 0.0; status  = 0
+#
+#    o Array  x[1:n]  is the "fittest" (optimal) solution found,
+#       i.e., the solution which maximizes fitness function ff
+#
+#    o Scalar  f  is the value of the fitness function at x
+#
+#    o Integer  status  is an indicator of the success or failure
+#       of the call to pikaia (0=success; non-zero=failure)
+#
+#
 
-#   Init output:
-    
-    x = rand(n)
-    f = 0.
-    status  = 0
+#   Constants
+    const NMAX = 32  
+    const PMAX = 328  
+    const DMAX = 6  
+#
+#    o NMAX is the maximum number of adjustable parameters
+#      (n <= NMAX)
+#
+#    o PMAX is the maximum population (ctrl(1) <= PMAX)
+#
+#    o DMAX is the maximum number of Genes (digits) per Chromosome
+#      segement (parameter) (ctrl(3) <= DMAX)
+#
 
 #   Set control variables from input and defaults
     (status, np, ngen, nd, imut, irep, ielite, ivrb, 
         pcross, pmutmn, pmutmx, pmut, fdif) = setctl(ctrl, n)
     if status != 0
-        println(" Control vector (ctrl) argument(s) invalid")
+        warn(" Control vector (ctrl) argument(s) invalid")
         return (x, f, status)
     end
+
+#   Local variables
+    gn1   = [1:n*nd]
+    gn2   = [1:n*nd]
+    fitns = rand(np) 
+    ifit  = [1:np]
+    jfit  = [1:np]
+
+    ph    = rand(n, 2)
+    newph = rand(n, np)
+ 
 #   Make sure locally-dimensioned arrays are big enough
     if  n > NMAX || np > PMAX || nd > DMAX 
-        println(" Number of parameters, population, or genes too large")
+        warn(" Number of parameters, population, or genes too large")
         status = -1
         return (x, f, status)
     end
 
-#  Local variables
-
-    gn1 = [1 : n*nd]
-    gn2 = [1 : n*nd]
-    fitns = rand(np) 
-    ifit = [1 : np]
-    jfit = [1 : np]
-
-    ph = rand(n, 2)
-    newph = rand(NMAX, PMAX)
+#   Compute initial (random but bounded) phenotypes
+#   Rank initial population by fitness order
 
     (old_ph, fitns, ifit, jfit) = init_pop(ff, n, np)
 
@@ -605,11 +632,11 @@ const DMAX = 32   # (default 6) DMAX is the maximum number of Genes (digits) per
 #    (ifit, jfit) = rnkpop(np, fitns)
 
 #   Main Generation Loop
-    for ig = 1 : ngen
+    for ig = 1:ngen
 
 #       Main Population Loop
         newtot = 0  
-        for ip = 1 : np / 2
+        for ip = 1:np/2
 
 #           1. pick two parents
             ip1 = select(np,jfit,fdif)
@@ -674,4 +701,4 @@ end # Pikaia
 # http://julialang.org/gsoc/2014/
 # http://omega.sp.susu.ac.ru/books/conference/PaVT2008/papers/Short_Papers/030.pdf
 # http://www.hao.ucar.edu/modeling/pikaia/
-
+# http://getbootstrap.com/examples/carousel/#
