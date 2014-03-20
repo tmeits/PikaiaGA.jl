@@ -322,9 +322,12 @@ function init_pop(ff:: Function, n:: Int, np:: Int)
     return (old_ph, fitns, ifit, jfit)
 end
 
-function new_pop(ff:: Function, ielite:: Int, ndim:: Int, n:: Int, np:: Int, 
-    oldph:: Array{Float64, 1}, fitns:: Array{Float64, 1})
+# **********************************************************************
+function new_pop(ff::Function, ielite::Int, ndim::Int, n::Int, np::Int, 
+    oldph::Matrix{Float64}, newph::Matrix{Float64})
+# ======================================================================    
 # replaces old population by new; recomputes fitnesses & ranks
+# ======================================================================
     
     nnew = np
     newph = oldph
@@ -352,16 +355,18 @@ function new_pop(ff:: Function, ielite:: Int, ndim:: Int, n:: Int, np:: Int,
     return (newph, fitns, ifit, jfit)
 end
 
-
-function encode!(n:: Int, nd:: Int, ph:: Array{Float64, 1}, gn:: Array{Int, 1})
+# ********************************************************************
+function encode!(n::Int, nd::Int, ph::Vector{Float64}, gn::Vector{Int})
+# ====================================================================    
 # encode phenotype parameters into integer genotype
 # ph(k) are x,y coordinates [ 0 < x,y < 1 ]
-    
+# ====================================================================
+
     z = 10.^nd
     ii = 0
-    for i = 1 : n
+    for i = 1:n
         ip = int(ph[i]*z)
-        for j = reverse([1 : nd])
+        for j = reverse([1:nd])
             gn[ii+j] = mod(ip, 10)
         end
         ii = ii + nd
@@ -369,19 +374,22 @@ function encode!(n:: Int, nd:: Int, ph:: Array{Float64, 1}, gn:: Array{Int, 1})
     gn
 end
 
-function decode(n:: Int, nd:: Int, gn:: Array{Int, 1})
+# *********************************************************************
+function decode(n::Int, nd::Int, gn::Vector{Int})
+# =====================================================================    
 # decode genotype into phenotype parameters
 # ph(k) are x,y coordinates [ 0 < x,y < 1 ]
+# =====================================================================
     
     ph = Float64[]
 
 #   z = 10.^(-nd)
 #   a^(-b) = 1/ ( a^b)
-    z = 1 / (10.^nd)
+    z = 1/(10.^nd)
     ii = 0
-    for i = 1 : n
+    for i = 1:n
         ip = 0
-        for j = 1 : nd
+        for j = 1:nd
             ip = 10 * ip+gn[ii+j]
         end
 #        ph[i]=ip*z
@@ -391,8 +399,9 @@ function decode(n:: Int, nd:: Int, gn:: Array{Int, 1})
     ph
 end
 
-
-function cross!(n:: Int, nd:: Int, pcross:: Float64, gn1:: Array{Int,1}, gn2:: Array{Int, 1})
+# *********************************************************************
+function cross!(n::Int, nd::Int, pcross::Float64, gn1::Vector{Int}, gn2::Vector{Int})
+# =====================================================================    
 # breeds two parent chromosomes into two offspring chromosomes
 # breeding occurs through crossover. If the crossover probability
 # test yields true (crossover taking place), either one-point or
@@ -400,6 +409,7 @@ function cross!(n:: Int, nd:: Int, pcross:: Float64, gn1:: Array{Int,1}, gn2:: A
 #
 # Compatibility with version 1.0: To enforce 100% use of one-point
 # crossover, un-comment appropriate line in source code below
+# =====================================================================
 
 #   Use crossover probability to decide whether a crossover occurs
     if urand() < pcross
