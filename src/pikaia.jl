@@ -400,7 +400,8 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
 end
 
 # *********************************************************************
-function cross!(n::Int, nd::Int, pcross::Float64, gn1::Vector{Int}, gn2::Vector{Int})
+function cross!(n::Int, nd::Int, pcross::Float64, gn1::Vector{Int},
+    gn2::Vector{Int})
 # =====================================================================    
 # breeds two parent chromosomes into two offspring chromosomes
 # breeding occurs through crossover. If the crossover probability
@@ -438,7 +439,9 @@ function cross!(n::Int, nd::Int, pcross::Float64, gn1::Vector{Int}, gn2::Vector{
     gn1, gn2
 end
 
-function mutate!(n:: Int, nd:: Int, pmut:: Float64, gn:: Array{Int, 1}, imut:: Int)
+# *********************************************************************
+function mutate!(n::Int, nd::Int, pmut::Float64, gn::Vector{Int}, imut::Int)
+# =====================================================================    
 # Mutations occur at rate pmut at all gene loci
 #   imut=1    Uniform mutation, constant rate
 #   imut=2    Uniform mutation, variable rate based on fitness
@@ -446,15 +449,15 @@ function mutate!(n:: Int, nd:: Int, pmut:: Float64, gn:: Array{Int, 1}, imut:: I
 #   imut=4    Uniform or creep mutation, constant rate
 #   imut=5    Uniform or creep mutation, variable rate based on fitness
 #   imut=6    Uniform or creep mutation, variable rate based on distance
-
+# =====================================================================
     fix_it_up = false
 
 #   Decide which type of mutation is to occur
     if imut > 4 && urand() < 0.5
 #       CREEP MUTATION OPERATOR
 #       Subject each locus to random +/- 1 increment at the rate pmut
-        for i = 1 : n
-            for j = 1 : nd
+        for i = 1:n
+            for j = 1:nd
                 if urand() < pmut
 #                   Construct integer
                     loc = (i - 1)*nd + j
@@ -470,7 +473,7 @@ function mutate!(n:: Int, nd:: Int, pmut:: Float64, gn:: Array{Int, 1}, imut:: I
                         if j == 1
                             gn[loc] = 0
                         else
-                            for k = reverse([(ist+1) : loc])
+                            for k = reverse([(ist+1):loc])
                                 gn[k] = 9
                                 gn[k - 1] = gn[k - 1] - 1
                                 if gn[k - 1] > 0
@@ -481,7 +484,7 @@ function mutate!(n:: Int, nd:: Int, pmut:: Float64, gn:: Array{Int, 1}, imut:: I
 #                           we popped under 0.00000 lower bound; fix it up
                             if fix_it_up == false
                                 if gn[ist] < 0
-                                    for l = ist : loc
+                                    for l = ist:loc
                                         gn[l] = 0
                                     end
                                 end
@@ -493,7 +496,7 @@ function mutate!(n:: Int, nd:: Int, pmut:: Float64, gn:: Array{Int, 1}, imut:: I
                         if j == 1
                             gn[loc] = 9
                         else
-                            for k = reverse([(ist+1) : loc])
+                            for k = reverse([(ist+1):loc])
                                 gn[k] = 9
                                 gn[k - 1] = gn[k - 1] + 1
                                 if gn[k - 1] < 9
@@ -504,7 +507,7 @@ function mutate!(n:: Int, nd:: Int, pmut:: Float64, gn:: Array{Int, 1}, imut:: I
 #                           we popped over 9.99999 upper bound; fix it up
                             if fix_it_up == false
                                 if gn[ist] > 9
-                                    for l = ist : loc
+                                    for l = ist:loc
                                         gn[l] = 9
                                     end
                                 end
@@ -517,7 +520,7 @@ function mutate!(n:: Int, nd:: Int, pmut:: Float64, gn:: Array{Int, 1}, imut:: I
     else
 #   UNIFORM MUTATION OPERATOR
 #   Subject each locus to random mutation at the rate pmut
-        for i = 1 : (n*nd)
+        for i = 1:(n*nd)
             if urand() < pmut
                 gn[i] = int(urand() * 10.0)
             end
