@@ -19,17 +19,22 @@ export
 global _bestft = 0.0
 global _pmutpv = 0.0
 
-    
-function rqsort(n:: Int, a:: Array{Float64, 1}, p:: Array{Int, 1})
+# *********************************************************************    
+function rqsort(n:: Int, a:: Vector{Float64}, p:: Vector{Int})
+# =====================================================================    
 # Return integer array p which indexes array a in increasing order.
 # Array a is not disturbed.
+# =====================================================================
     p=sortperm(a) # the permutation to sort an array
 return p
 end
 
+# *********************************************************************
 function urand()
+# =====================================================================    
 # Return the next pseudo-random deviate from a sequence which is
 # uniformly distributed in the interval [0,1]
+# =====================================================================
 return rand()
 end
 
@@ -529,9 +534,11 @@ function mutate!(n::Int, nd::Int, pmut::Float64, gn::Vector{Int}, imut::Int)
     gn
 end
 
-
-function adjustment!(ndim::Int, n::Int, np::Int, oldph::Array{Float64,2}, fitns::Array{Float64,1},
-    ifit::Array{Int,1}, pmutmn::Float64, pmutmx::Float64, pmut::Float64, imut::Int) 
+# *********************************************************************
+function adjustment!(ndim::Int, n::Int, np::Int, oldph::MAtrix{Float64}, 
+    fitns::Vector{Float64}, ifit::Vector{Int}, pmutmn::Float64, 
+    pmutmx::Float64, pmut::Float64, imut::Int) 
+# =====================================================================    
 # dynamical adjustment of mutation rate;
 #    imut=2 or imut=5 : adjustment based on fitness differential
 #                       between best and median individuals
@@ -543,6 +550,7 @@ function adjustment!(ndim::Int, n::Int, np::Int, oldph::Array{Float64,2}, fitns:
 #                           between best and median individuals
 #        imut=3 or imut=6 : adjustment based on metric distance
 #                           between best and median individuals
+# =====================================================================
 
     const rdiflo=0.05
     const rdifhi=0.25
@@ -568,10 +576,13 @@ function adjustment!(ndim::Int, n::Int, np::Int, oldph::Array{Float64,2}, fitns:
     end
 end
 
-function pikaia(ff::Function, n::Int, ctrl::Array{Float64, 1})
+# *********************************************************************
+function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
+# =====================================================================
 # Optimization (maximization) of user-supplied "fitness" function
-# ff  over n-dimensional parameter space  x  using a basic genetic
+# ff  over n-dimensional parameter space  x  using a basic genetic 
 # algorithm method.
+# =====================================================================
 
 # Version 0.0.1   [ 2014 February 21 ]
 
