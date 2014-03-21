@@ -1,5 +1,8 @@
+# *********************************************************************
 # The Julia Language: a fresh approach to technical computing.
-# Pikaia is a general purpose function optimization Julia lang module based on a genetic algorithm.
+# Pikaia is a general purpose function optimization Julia lang module 
+# based on a genetic algorithm.
+# **********************************************************************
 module Pikaia
 
 importall Base
