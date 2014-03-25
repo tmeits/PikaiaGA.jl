@@ -11,25 +11,26 @@ export
     pikaia, 
     rqsort,
     init_pop,
-    newpop,
+    new_pop!,
     urand,
     encode,
     cross!,
     mutate!,
     report,
-    adjustment!
+    adjustment!,
+    steady_state_reproduction!
 
 global _bestft = 0.0
 global _pmutpv = 0.0
 
 # *********************************************************************    
-function rqsort(n:: Int, a:: Vector{Float64}, p:: Vector{Int})
+function rqsort(n:: Int, a:: Vector{Float64})
 # =====================================================================    
 # Return integer array p which indexes array a in increasing order.
 # Array a is not disturbed.
 # =====================================================================
-    p=sortperm(a) # the permutation to sort an array
-return p
+    return 
+        sortperm(a) # the permutation to sort an array
 end
 
 # *********************************************************************
@@ -38,12 +39,18 @@ function urand()
 # Return the next pseudo-random deviate from a sequence which is
 # uniformly distributed in the interval [0,1]
 # =====================================================================
-return rand()
+    return 
+        rand()
 end
 
+# *********************************************************************
 function setctl(ctrl::Array{Float64, 1}, n:: Int)
+# =====================================================================    
 # Set control variables and flags from input and defaults
-const DEFAULT = [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
+# =====================================================================
+
+    const DEFAULT = 
+        [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
 
     global _bestft::Float64 = 0.0
     global _pmutpv::Float64 = 0.0
@@ -66,7 +73,7 @@ const DEFAULT = [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
     ielite = int(ctrl[11])
     ivrb   = int(ctrl[12])
     status = 0
-# Print a header
+#   Print a header
     if ivrb > 0
         @printf("******************************************************************\n")
         @printf("*            Pikaia Genetic Algorithm Report                     *\n")
@@ -152,10 +159,13 @@ const DEFAULT = [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
 
 end
 
+# *********************************************************************
 function report(ivrb::Int, ndim::Int, n::Int, np::Int, nd::Int, 
-    oldph::Array{Float64,2}, fitns::Array{Float64,1}, ifit::Array{Int,1}, pmut:: Float64,
-    ig::Int, nnew::Int)
+    oldph::Matrix{Float64}, fitns::Vector{Float64}, ifit::Vector{Int}, 
+    pmut::Float64, ig::Int, nnew::Int)
+# =====================================================================    
 # Write generation report to standard output
+# =====================================================================
     
     global _bestft
     global _pmutpv
@@ -191,9 +201,13 @@ function report(ivrb::Int, ndim::Int, n::Int, np::Int, nd::Int,
 end    
 
 # call genrep(NMAX,n,np,ip,ph,newph)
-function generational_replacement(n:: Int, np:: Int, ip:: Int, 
-    phenotype:: Array{Float64, 1})
+
+# *********************************************************************
+function generational_replacement(n::Int, np::Int, ip::Int,
+    phenotype:: Vector{Float64})
+# =====================================================================    
 # full generational replacement: accumulate offspring into new population array
+# =====================================================================
 
     new_phenotype = Float64[]
 
@@ -207,11 +221,15 @@ function generational_replacement(n:: Int, np:: Int, ip:: Int,
     new_phenotype
 end
 
-function steady_state_reproduction(ff::Function, ndim::Int, n::Int, np::Int, irep::Int, 
-    ielite::Int, ph::Array{Float64,2}, oldph:: Array{Float64,2}, fitns:: Array{Float64,1},
-    ifit::Array{Int,1},jfit::Array{Int,1})
+# *********************************************************************
+function steady_state_reproduction!(ff::Function, ndim::Int, n::Int, 
+    np::Int, irep::Int, ielite::Int, ph::Matrix{Float64}, 
+    oldph:: MAtrix{Float64}, fitns:: Vector{Float64}, 
+    ifit::Vector{Int},jfit::Vector{Int})
+# =====================================================================    
 # steady-state reproduction: insert offspring pair into population
 # only if they are fit enough (replace-random if irep=2 or replace-worst if irep=3).
+# =====================================================================
 
     nnew = 0
     goto_j = false
@@ -275,16 +293,19 @@ function steady_state_reproduction(ff::Function, ndim::Int, n::Int, np::Int, ire
     end # j
 end
 
-function  rnkpop(n:: Int, arrin:: Array{Float64, 1})
+# *********************************************************************
+function  rnkpop(n:: Int, arrin:: vector{Float64})
+# =====================================================================    
 # Calls external sort routine to produce key index and rank order
 # of input array arrin (which is not altered).
+# =====================================================================
 
 #   Compute the key index
-    rank = [1:n] #rand(n)
-    indx = rqsort(n, arrin, [1: n])
+    rank = [1:n] 
+    indx = rqsort(n, arrin)
 #   ...and the rank order
-    for i = 1 : n
-        rank[indx[i]] = n - i + 1
+    for i = 1:n
+        rank[indx[i]] = n-i+1
     end
     return (indx, rank)
 end
@@ -315,9 +336,13 @@ end # select
 
 # *********************************************************************
 function init_pop(ff:: Function, n:: Int, np:: Int)
+# =====================================================================    
 #   Compute initial (random but bounded) phenotypes
+# =====================================================================
+
     old_ph = Array(Float64, n, np)
     fitns = Array(Float64, np)
+
 #   old_ph = rand(n, np)
     for ip = 1 : np
         for k = 1 : n
@@ -331,7 +356,7 @@ function init_pop(ff:: Function, n:: Int, np:: Int)
 end
 
 # **********************************************************************
-function new_pop(ff::Function, ielite::Int, ndim::Int, n::Int, np::Int, 
+function new_pop!(ff::Function, ielite::Int, ndim::Int, n::Int, np::Int, 
     oldph::Matrix{Float64}, newph::Matrix{Float64})
 # ======================================================================    
 # replaces old population by new; recomputes fitnesses & ranks
@@ -359,7 +384,8 @@ function new_pop(ff::Function, ielite::Int, ndim::Int, n::Int, np::Int,
         fitns[i]=ff(n,oldph[1,i])        
     end
 #   compute new population fitness rank order
-    (ifit, jfit) = rnkpop(np,fitns,ifit,jfit)
+    (ifit, jfit) = rnkpop(np,fitns)
+
     return (newph, fitns, ifit, jfit)
 end
 
