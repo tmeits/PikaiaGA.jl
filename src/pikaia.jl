@@ -224,7 +224,7 @@ end
 # *********************************************************************
 function steady_state_reproduction!(ff::Function, ndim::Int, n::Int, 
     np::Int, irep::Int, ielite::Int, ph::Matrix{Float64}, 
-    oldph:: MAtrix{Float64}, fitns:: Vector{Float64}, 
+    oldph:: Matrix{Float64}, fitns:: Vector{Float64}, 
     ifit::Vector{Int},jfit::Vector{Int})
 # =====================================================================    
 # steady-state reproduction: insert offspring pair into population
@@ -294,7 +294,7 @@ function steady_state_reproduction!(ff::Function, ndim::Int, n::Int,
 end
 
 # *********************************************************************
-function  rnkpop(n:: Int, arrin:: vector{Float64})
+function  rnkpop(n:: Int, arrin:: Vector{Float64})
 # =====================================================================    
 # Calls external sort routine to produce key index and rank order
 # of input array arrin (which is not altered).
@@ -509,8 +509,8 @@ function mutate!(n::Int, nd::Int, pmut::Float64, gn::Vector{Int}, imut::Int)
                         else
                             for k = reverse([(ist+1):loc])
                                 gn[k] = 9
-                                gn[k - 1] = gn[k - 1] - 1
-                                if gn[k - 1] > 0
+                                gn[k-1] = gn[k-1]-1
+                                if gn[k-1] > 0
                                     fix_it_up = true
                                     break
                                 end
@@ -532,8 +532,8 @@ function mutate!(n::Int, nd::Int, pmut::Float64, gn::Vector{Int}, imut::Int)
                         else
                             for k = reverse([(ist+1):loc])
                                 gn[k] = 9
-                                gn[k - 1] = gn[k - 1] + 1
-                                if gn[k - 1] < 9
+                                gn[k-1] = gn[k-1]+1
+                                if gn[k-1] < 9
                                     fix_it_up = true
                                     break
                                 end
@@ -564,7 +564,7 @@ function mutate!(n::Int, nd::Int, pmut::Float64, gn::Vector{Int}, imut::Int)
 end
 
 # *********************************************************************
-function adjustment!(ndim::Int, n::Int, np::Int, oldph::MAtrix{Float64}, 
+function adjustment!(ndim::Int, n::Int, np::Int, oldph::Matrix{Float64}, 
     fitns::Vector{Float64}, ifit::Vector{Int}, pmutmn::Float64, 
     pmutmx::Float64, pmut::Float64, imut::Int) 
 # =====================================================================    
