@@ -10,8 +10,14 @@ function rastriginsfcn(x::Vector{Float64})
 # http://www.mathworks.com/help/gads/eqn1198784102.png
 # =====================================================================
 
-    20+x[1]^2+x[2]^2-10*(cos(2*pi*x[1])+cos(2*pi*x[2]))
+    if length(x) == 2
+        20+x[1]^2+x[2]^2-10*(cos(2*pi*x[1])+cos(2*pi*x[2]))
+    else
+        error("number of input arguments id bad")
+    end
 
 end
 
 end
+# https://code.google.com/p/psomatlab/
+# http://jenyay.net/Programming/ParticleSwarm
