@@ -1,6 +1,7 @@
 #
 
 using Base.Test
+using TestFunctions
 using Pikaia
 
 a = rand(1 : 50)
@@ -22,4 +23,14 @@ ng = [1: 55*6]
 pop_ph=rand(50,850);
 gn=Pikaia.encode!(50,6,pop_ph[:,1],[1:50*6]);
 Pikaia.decode(50, 5, gn);
+
+# number of output arguments
+@test length(TestFunctions.rastriginsfcn([0., 0.])) == 1
+
+# type of output
+@test typeof(TestFunctions.rastriginsfcn([0., 0.])) == Float64
+
+# result
+@test TestFunctions.rastriginsfcn([0., 0.]) == 0.
+
 
