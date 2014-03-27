@@ -34,3 +34,7 @@ Pikaia.decode(50, 5, gn);
 @test TestFunctions.rastriginsfcn([0., 0.]) == 0.
 
 
+@test TestFunctions.rastrigin([0.]) == 0.0
+@test TestFunctions.rastrigin([0., 0.]) == 0.0
+@test TestFunctions.rastrigin(rand(10)*0.0) == 0.0
+

@@ -1,13 +1,13 @@
-#
+# include("testfunctions.jl")
+
 module TestFunctions
+# Test functions for optimization
+# http://en.wikipedia.org/wiki/Test_functions_for_optimization
 
 # *********************************************************************
 function rastriginsfcn(x::Vector{Float64})
 # =====================================================================
-# Rastrigin's function, a function that is often used to test the genetic algorithm.
-# http://www.mathworks.com/help/gads/rastrigins_with_line2.png
-# http://www.mathworks.com/help/gads/ras_contour.png
-# http://www.mathworks.com/help/gads/eqn1198784102.png
+# Rastrigin function of two variables
 # =====================================================================
 
     if length(x) == 2
@@ -16,6 +16,19 @@ function rastriginsfcn(x::Vector{Float64})
         error("number of input arguments id bad")
     end
 
+end
+
+function rastrigin(x::Vector{Float64})
+# http://en.wikipedia.org/wiki/Rastrigin_function
+
+    a = 10.0
+    n = length(x)
+
+    fitness = a*n
+    for i=1:n
+        fitness += x[i]^2 - a*cos(2*pi*x[i])
+    end
+    fitness
 end
 
 end
