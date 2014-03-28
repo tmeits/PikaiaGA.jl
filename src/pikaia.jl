@@ -28,9 +28,8 @@ function rqsort(n:: Int, a:: Vector{Float64})
 # =====================================================================    
 # Return integer array p which indexes array a in increasing order.
 # Array a is not disturbed.
-# =====================================================================
-    return 
-        sortperm(a) # the permutation to sort an array
+# ===================================================================== 
+    sortperm(a) # the permutation to sort an array
 end
 
 # *********************************************************************
@@ -294,24 +293,28 @@ function steady_state_reproduction!(ff::Function, ndim::Int, n::Int,
 end
 
 # *********************************************************************
-function  rnkpop(n:: Int, arrin:: Vector{Float64})
+function  rank_pop(n:: Int, fitnes:: Vector{Float64})
 # =====================================================================    
-# Calls external sort routine to produce key index and rank order
-# of input array arrin (which is not altered).
+# Rank population by fitness order
+# Produce key index and rank order
+# of input array arrin
 # =====================================================================
 
 #   Compute the key index
     rank = [1:n] 
-    indx = rqsort(n, arrin)
+    indx = rqsort(n, fitnes)
+    print(rqsort(n, fitnes))
+    print(indx)
 #   ...and the rank order
     for i = 1:n
         rank[indx[i]] = n-i+1
     end
     return (indx, rank)
-end
+end # rank_pop
 
 # *********************************************************************
-function select(np::Int, jfit::Vector{Int}, fdif::Float64)
+function select(population_size::Int, jfit::Vector{Int}, 
+    fdif::Float64) # relative fitness differential
 # =====================================================================    
 # Selects a parent from the population, using roulette wheel
 # algorithm with the relative fitnesses of the phenotypes as
@@ -320,12 +323,12 @@ function select(np::Int, jfit::Vector{Int}, fdif::Float64)
 
     idad = 0
 
-    np1   = np+1 
-    dice  = urand()*np*np1
+    ps1   = population_size+1 
+    dice  = urand()*population_size*ps1
     rtfit = 0.0
 
-    for i= 1:np
-        rtfit = rtfit+np1+fdif*(np1-2*jfit[i])
+    for i= 1:population_size
+        rtfit = rtfit+np1+fdif*(ps1-2*jfit[i])
         if rtfit >= dice
             idad=i
             break
@@ -340,20 +343,21 @@ function init_pop(ff:: Function, n:: Int, np:: Int)
 #   Compute initial (random but bounded) phenotypes
 # =====================================================================
 
-    old_ph = Array(Float64, n, np)
-    fitns = Array(Float64, np)
+#    old_ph = rand(n, np)
+    fitns = rand(np)
 
-#   old_ph = rand(n, np)
+    old_ph = rand(n, np)
     for ip = 1 : np
-        for k = 1 : n
-            old_ph[k, ip] = urand()
-        end
-        fitns[ip] = ff(n, old_ph[:,ip])
+#        for k = 1 : n
+#            old_ph[k, ip] = urand()
+#        end
+        fitns[ip] = ff(old_ph[:,ip])
     end
+    print(fitns)
 #   Rank initial population by fitness order
-    (ifit, jfit) = rnkpop(np, fitns)
+    (ifit, jfit) = rank_pop(np, fitns)
     return (old_ph, fitns, ifit, jfit)
-end
+end # init_pop
 
 # **********************************************************************
 function new_pop!(ff::Function, ielite::Int, ndim::Int, n::Int, np::Int, 
@@ -384,7 +388,7 @@ function new_pop!(ff::Function, ielite::Int, ndim::Int, n::Int, np::Int,
         fitns[i]=ff(n,oldph[1,i])        
     end
 #   compute new population fitness rank order
-    (ifit, jfit) = rnkpop(np,fitns)
+    (ifit, jfit) = rank_pop(np,fitns)
 
     return (newph, fitns, ifit, jfit)
 end
@@ -672,29 +676,20 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 
     (old_ph, fitns, ifit, jfit) = init_pop(ff, n, np)
 
-#    oldph = Array(Float64, n, np)
-
-#   Compute initial (random but bounded) phenotypes
-#    for ip = 1 : np
-#        for k = 1 : n
-#            oldph[k, ip] = urand()
-#        end
-#        fitns[ip] = ff(n, oldph[1,ip])
-#    end
-#   Rank initial population by fitness order
-#    (ifit, jfit) = rnkpop(np, fitns)
+   
+    oldph = Array(Float64, n, np)
 
 #   Main Generation Loop
     for ig = 1:ngen
 
 #       Main Population Loop
         newtot = 0  
-        for ip = 1:np/2
+        for ip = 1:(np/2)
 
 #           1. pick two parents
-            ip1 = select(np,jfit,fdif)
+            ip1 = select(np, jfit, fdif)
             while true
-                ip2 = select(np,jfit,fdif)
+                ip2 = select(np, jfit, fdif)
                 if ip1 != ip2
                     break
                 end
