@@ -13,12 +13,13 @@ export
     init_pop,
     new_pop!,
     urand,
-    encode,
+    encode!,
     cross!,
     mutate!,
     report,
     adjustment!,
-    steady_state_reproduction!
+    steady_state_reproduction!,
+    select
 
 global _bestft = 0.0
 global _pmutpv = 0.0
@@ -38,9 +39,28 @@ function urand()
 # Return the next pseudo-random deviate from a sequence which is
 # uniformly distributed in the interval [0,1]
 # =====================================================================
-    return 
-        rand()
+    
+    return rand()
 end
+
+function set_ctrl_default()
+# Initialize some empty vectors
+    ctrl = Float64[]
+
+# First, initialize the random-number generator
+    srand(123456)
+
+# Set control variables (use defaults)
+    for i= [1:12]
+        # Push default values into an array
+        ctrl = push!(ctrl, -1.)
+    end
+    ctrl[1]=1
+    ctrl[2]=50.
+    
+    ctrl
+end    
+
 
 # *********************************************************************
 function setctl(ctrl::Array{Float64, 1}, n:: Int)
@@ -293,28 +313,7 @@ function steady_state_reproduction!(ff::Function, ndim::Int, n::Int,
 end
 
 # *********************************************************************
-function  rank_pop(n:: Int, fitnes:: Vector{Float64})
-# =====================================================================    
-# Rank population by fitness order
-# Produce key index and rank order
-# of input array arrin
-# =====================================================================
-
-#   Compute the key index
-    rank = [1:n] 
-    indx = rqsort(n, fitnes)
-    print(rqsort(n, fitnes))
-    print(indx)
-#   ...and the rank order
-    for i = 1:n
-        rank[indx[i]] = n-i+1
-    end
-    return (indx, rank)
-end # rank_pop
-
-# *********************************************************************
-function select(population_size::Int, jfit::Vector{Int}, 
-    fdif::Float64) # relative fitness differential
+function select(population_size::Int, jfit::Vector{Int}, fdif::Float64) # relative fitness differential
 # =====================================================================    
 # Selects a parent from the population, using roulette wheel
 # algorithm with the relative fitnesses of the phenotypes as
@@ -328,14 +327,37 @@ function select(population_size::Int, jfit::Vector{Int},
     rtfit = 0.0
 
     for i= 1:population_size
-        rtfit = rtfit+np1+fdif*(ps1-2*jfit[i])
+        rtfit = rtfit+ps1+fdif*(ps1-2*jfit[i])
         if rtfit >= dice
             idad=i
             break
         end
     end
-    return idad
+
+    idad
+
 end # select
+
+# *********************************************************************
+function  rank_pop(n:: Int, fitnes:: Vector{Float64})
+# =====================================================================    
+# Rank population by fitness order
+# Produce key index and rank order of input array arrin
+# =====================================================================
+
+#   Compute the key index
+    rank = [1:n] 
+    indx = rqsort(n, fitnes)
+
+#   ...and the rank order
+    for i = 1:n
+        rank[indx[i]] = n-i+1
+    end
+
+    return (indx, rank)
+
+end # rank_pop
+
 
 # *********************************************************************
 function init_pop(ff:: Function, n:: Int, np:: Int)
@@ -343,20 +365,20 @@ function init_pop(ff:: Function, n:: Int, np:: Int)
 #   Compute initial (random but bounded) phenotypes
 # =====================================================================
 
-#    old_ph = rand(n, np)
-    fitns = rand(np)
-
     old_ph = rand(n, np)
-    for ip = 1 : np
-#        for k = 1 : n
-#            old_ph[k, ip] = urand()
-#        end
-        fitns[ip] = ff(old_ph[:,ip])
+    fitns  = rand(np)
+
+    for ip = 1:np
+        for k = 1:n
+            old_ph[k, ip] = urand() 
+        end
+        fitns[ip] = ff(old_ph[:, ip])
     end
-    print(fitns)
 #   Rank initial population by fitness order
     (ifit, jfit) = rank_pop(np, fitns)
+
     return (old_ph, fitns, ifit, jfit)
+
 end # init_pop
 
 # **********************************************************************
@@ -391,6 +413,7 @@ function new_pop!(ff::Function, ielite::Int, ndim::Int, n::Int, np::Int,
     (ifit, jfit) = rank_pop(np,fitns)
 
     return (newph, fitns, ifit, jfit)
+
 end
 
 # ********************************************************************
@@ -402,6 +425,7 @@ function encode!(n::Int, nd::Int, ph::Vector{Float64}, gn::Vector{Int})
 
     z = 10.^nd
     ii = 0
+
     for i = 1:n
         ip = int(ph[i]*z)
         for j = reverse([1:nd])
@@ -409,6 +433,7 @@ function encode!(n::Int, nd::Int, ph::Vector{Float64}, gn::Vector{Int})
         end
         ii = ii + nd
     end
+
     gn
 end
 
@@ -425,6 +450,7 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
 #   a^(-b) = 1/ ( a^b)
     z = 1/(10.^nd)
     ii = 0
+
     for i = 1:n
         ip = 0
         for j = 1:nd
@@ -434,6 +460,7 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
         push!(ph, ip*z)
         ii=ii+nd
     end
+
     ph
 end
 

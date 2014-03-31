@@ -38,3 +38,12 @@ Pikaia.decode(50, 5, gn);
 @test TestFunctions.rastrigin([0., 0.]) == 0.0
 @test TestFunctions.rastrigin(rand(10)*0.0) == 0.0
 
+ Pikaia.init_pop(TestFunctions.rastrigin,1,4)
+ Pikaia.set_ctrl_default()
+ Pikaia.select(4, Pikaia.init_pop(TestFunctions.rastrigin,1,4)[4],1.)
+
+(ph,fitns,ifit,jfit)=Pikaia.init_pop(TestFunctions.rastrigin,1,4)
+g1=[1:5]
+Pikaia.encode!(1,5,ph[:,1],g1)
+
+for ss=1:32 g1=[1:ss]; println(Pikaia.encode!(1,ss,ph[:,3],g1)) ;print("\n")end
