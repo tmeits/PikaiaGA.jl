@@ -416,6 +416,8 @@ function new_pop!(ff::Function, ielite::Int, ndim::Int, n::Int, np::Int,
 
 end
 
+# http://whitedwarf.org/metcalfe/node8.htm
+
 # ********************************************************************
 function encode!(n::Int, nd::Int, ph::Vector{Float64}, gn::Vector{Int})
 # ====================================================================    
@@ -423,15 +425,18 @@ function encode!(n::Int, nd::Int, ph::Vector{Float64}, gn::Vector{Int})
 # ph(k) are x,y coordinates [ 0 < x,y < 1 ]
 # ====================================================================
 
-    z = 10.^nd
+    z  = 10.^nd
     ii = 0
 
     for i = 1:n
         ip = int(ph[i]*z)
         for j = reverse([1:nd])
+#            print(ii+j)
+#            println(mod(ip, 10))
             gn[ii+j] = mod(ip, 10)
+            ip=int(ip/10)
         end
-        ii = ii + nd
+        ii = ii+nd
     end
 
     gn
@@ -448,13 +453,13 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
 
 #   z = 10.^(-nd)
 #   a^(-b) = 1/ ( a^b)
-    z = 1/(10.^nd)
+    z  = 1./(10.^nd)
     ii = 0
 
     for i = 1:n
         ip = 0
         for j = 1:nd
-            ip = 10 * ip+gn[ii+j]
+            ip = 10*ip+gn[ii+j]
         end
 #        ph[i]=ip*z
         push!(ph, ip*z)

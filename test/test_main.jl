@@ -47,3 +47,11 @@ g1=[1:5]
 Pikaia.encode!(1,5,ph[:,1],g1)
 
 for ss=1:32 g1=[1:ss]; println(Pikaia.encode!(1,ss,ph[:,3],g1)) ;print("\n")end
+
+for i=1:1000
+    val=rand(); 
+    nd=int(rand()*32); 
+    Pikaia.decode(1,nd,Pikaia.encode!(1,nd,[val],[1:nd]))[1] == val;
+end
+val=rand(); nd=12; (Pikaia.decode(1,nd,Pikaia.encode!(1,nd,[val],[1:nd]))[1], val)
+
