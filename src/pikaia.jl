@@ -416,7 +416,16 @@ function new_pop!(ff::Function, ielite::Int, ndim::Int, n::Int, np::Int,
 
 end
 
-# http://whitedwarf.org/metcalfe/node8.htm
+# http://whitedwarf.org/metcalfe/node8.htmi
+# http://download.hao.ucar.edu/archive/pikaia/
+
+#julia> typeof(10.^6)
+#Int64
+
+#julia> typeof(10.0^6)
+#Float64
+# ??????
+
 
 # ********************************************************************
 function encode!(n::Int, nd::Int, ph::Vector{Float64}, gn::Vector{Int})
@@ -425,16 +434,19 @@ function encode!(n::Int, nd::Int, ph::Vector{Float64}, gn::Vector{Int})
 # ph(k) are x,y coordinates [ 0 < x,y < 1 ]
 # ====================================================================
 
-    z  = 10.^nd
+    z  = 10.0^nd
     ii = 0
+    print("z= "); println(z)
 
     for i = 1:n
         ip = int(ph[i]*z)
+        @printf("ip = %6i\n", ip)
         for j = reverse([1:nd])
 #            print(ii+j)
 #            println(mod(ip, 10))
             gn[ii+j] = mod(ip, 10)
-            ip=int(ip/10)
+            ip=int(floor(ip/10))
+            @printf("%6i %6i %9.4f %6i \n", ii, j,  mod(ip, 10), ip)
         end
         ii = ii+nd
     end
