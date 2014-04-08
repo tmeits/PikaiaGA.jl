@@ -58,26 +58,19 @@ val=rand(); nd=6; (Pikaia.decode(1,nd,Pikaia.encode!(1,nd,[val],[1:nd]))[1], val
 
 @test Pikaia.encode!(1,6,[0.27749011],[1:6]) == [2, 7, 7, 4, 9, 0]
 
-function enc_dec(n::Int, d::Int, s::Int)
-    for i =1:n
-        begin 
-            val = rand()
-            nd  = d#int(floor(rand()*16))+1
-            v1  = string(Pikaia.decode(1,nd,
-                Pikaia.encode!(1,nd,[val],[1:nd])))[1:s]   
-            v2  = string(val)[1:s]
-            if v1[1] == '.'
-                v1 = string("0",v1)[1:s]
-            elseif v2[1] == '.'
-                v2 = string("0",v2)[1:s]
-            end
-            if  v1[1] == '0' &&  v2[1] == '0'
-                @test v1 == v2
-            else
-                @printf("%9s %9s\n", v1, v2)
-            end
-        end
+function enc_dec(n::Int, d::Int)
+    for i =1:n 
+        val = rand()
+        nd  = d #int(floor(rand()*16))+1
+            
+        v1  = @sprintf("%12.10f", Pikaia.decode(1, nd,
+            Pikaia.encode!(1, nd, [val], [1:nd]))[1])
+        v2  = @sprintf("%12.10f", val)
+
+        @test v1[1:(d-2)] == v2[1:(d-2)]
     end
-    1
+    true
 end
+
+enc_dec(10000,5)
 
