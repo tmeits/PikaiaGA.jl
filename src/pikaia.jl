@@ -479,8 +479,8 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
 end
 
 # *********************************************************************
-function cross!(n::Int, nd::Int, pcross::Float64, gn1::Vector{Int},
-    gn2::Vector{Int})
+function cross!(n::Int, nd::Int, pcross::Float64,
+    gn1::Vector{Int}, gn2::Vector{Int})
 # =====================================================================    
 # breeds two parent chromosomes into two offspring chromosomes
 # breeding occurs through crossover. If the crossover probability
@@ -494,22 +494,22 @@ function cross!(n::Int, nd::Int, pcross::Float64, gn1::Vector{Int},
 #   Use crossover probability to decide whether a crossover occurs
     if urand() < pcross
 #       Compute first crossover point
-        ispl = int(urand()*n*nd) + 1
+        ispl = int(urand()*n*nd)+1
 #       Now choose between one-point and two-point crossover 
         if urand() < 0.5
             ispl2 = n*nd
         else
-            ispl2 = int(urand()*n*nd) + 1
+            ispl2 = int(urand()*n*nd)+1
 #           Un-comment following line to enforce one-point crossover
 #           ispl2=n*nd
             if ispl2 < ispl
-                itmp = ispl2
+                itmp  = ispl2
                 ispl2 = ispl
-                ispl = itmp
+                ispl  = itmp
             end
         end
 #       Swap genes from ispl to ispl2
-        for i = [ispl : ispl2]
+        for i = [ispl:ispl2]
             t = gn2[i]
             gn2[i] = gn1[i]
             gn1[i] = t
