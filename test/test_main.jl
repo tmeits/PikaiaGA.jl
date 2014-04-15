@@ -74,3 +74,12 @@ end
 
 enc_dec(10000,5)
 
+include("pikaia.jl")
+Pikaia.encode!(2,8, [0.123456789, 0.987654321],[1:8*2])
+Pikaia.decode(1,8,[1,2,3,4,5,6,7,8])
+Pikaia.decode(1,8,[1,2,3,4,5,6,7,9])
+Pikaia.decode(1,8,[9,8,7,6,5,4,3,2])
+
+gn1=Pikaia.encode!(2,8, [0.123456789, 0.987654321],[1:8*2])
+Pikaia.cross!(2,8,0.15,gn1,reverse(gn1))
+

@@ -31,8 +31,19 @@ c     Compute initial (random but bounded) phenotypes
 c     
       call decode(n,nd,gn1,ph(1,1))
 
+c http://www.hao.ucar.edu/modeling/pikaia/breeding.php
 
-      write(*,*) 'rand= ', urand()
+      n  = 2
+      nd = 8
+      ip1 = 1
+
+      oldph(1,1) = 0.123456789
+      oldph(2,1) = 0.987654321
+      call encode(n,nd,oldph(1,ip1),gn1)
+      write(*,*) 'phen= ', oldph(1,ip1),'gene= ', gn1(1:nd*n)
+
+
+
       end
 c*********************************************************************
       function urand()

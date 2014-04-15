@@ -458,7 +458,7 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
 # ph(k) are x,y coordinates [ 0 < x,y < 1 ]
 # =====================================================================
     
-    ph = Float64[]
+   ph = Float64[]    
 
 #   z = 10.^(-nd)
 #   a^(-b) = 1/ ( a^b)
