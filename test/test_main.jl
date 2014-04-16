@@ -83,3 +83,6 @@ Pikaia.decode(1,8,[9,8,7,6,5,4,3,2])
 gn1=Pikaia.encode!(2,8, [0.123456789, 0.987654321],[1:8*2])
 Pikaia.cross!(2,8,0.15,gn1,reverse(gn1))
 
+r=map((x)->Pikaia.get_random_int(-16,16),[1:10000]);
+rt=map((x)-> x >= -16 && x <= 16, r);
+@test sim(rt) == 10000
