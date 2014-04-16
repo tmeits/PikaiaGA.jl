@@ -479,6 +479,15 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
 end
 
 # *********************************************************************
+function get_random_int(rand_mum_min, rand_num_max)
+# =====================================================================    
+# Returns a random integer between min and max
+# =====================================================================
+    rand_int = (int(floor(rand() * (rand_num_max - rand_mum_min + 1)) + rand_mum_min))
+    rand_int
+end
+
+# *********************************************************************
 function one_point_crossover!(n::Int, nd::Int, pcross::Float64,
     gn1::Vector{Int}, gn2::Vector{Int})
 # =====================================================================  
@@ -487,7 +496,7 @@ function one_point_crossover!(n::Int, nd::Int, pcross::Float64,
 # =====================================================================
 
     if urand() < pcross
-        ispl = int(urand()*n*nd)+1 # choose cutting point
+        ispl = int(floor(urand()*n*nd))+1 # choose cutting point
         for i=ispl:(n*nd)
             t=gn2[i]
             gn2[i]=gn1[i]
@@ -496,6 +505,8 @@ function one_point_crossover!(n::Int, nd::Int, pcross::Float64,
     end
     1
 end
+
+
 
 # *********************************************************************
 function cross!(n::Int, nd::Int, pcross::Float64,
