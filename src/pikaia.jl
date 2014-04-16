@@ -479,6 +479,25 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
 end
 
 # *********************************************************************
+function one_point_crossover!(n::Int, nd::Int, pcross::Float64,
+    gn1::Vector{Int}, gn2::Vector{Int})
+# =====================================================================  
+# breeds two parent chromosomes into two offspring chromosomes
+# breeding occurs through crossover. 
+# =====================================================================
+
+    if urand() < pcross
+        ispl = int(urand()*n*nd)+1 # choose cutting point
+        for i=ispl:(n*nd)
+            t=gn2[i]
+            gn2[i]=gn1[i]
+            gn1[i]=t
+        end
+    end
+    1
+end
+
+# *********************************************************************
 function cross!(n::Int, nd::Int, pcross::Float64,
     gn1::Vector{Int}, gn2::Vector{Int})
 # =====================================================================    

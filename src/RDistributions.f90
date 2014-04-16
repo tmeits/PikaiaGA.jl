@@ -16,6 +16,7 @@
        CALL RANDOM_NUMBER(temp)
        c= a+temp*(b-a)
       END FUNCTION
+! http://sukhbinder.wordpress.com/fortran-random-number-generation/
 
 !
 ! Random Sample from normal (Gaussian) distribution
