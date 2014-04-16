@@ -1,3 +1,5 @@
+# http://www.johndcook.com/blog/2012/02/22/julia-random-number-generation/
+
 ## return a uniform random sample from the interval (a, b)
 function rand_uniform(a, b)
     a + rand()*(b - a)
