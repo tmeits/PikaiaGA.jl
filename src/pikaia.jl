@@ -479,11 +479,11 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
 end
 
 # *********************************************************************
-function get_random_int(rand_mum_min, rand_num_max)
+function get_random_int(rand_num_min, rand_num_max)
 # =====================================================================    
 # Returns a random integer between min and max
 # =====================================================================
-    rand_int = (int(floor(rand() * (rand_num_max - rand_mum_min + 1)) + rand_mum_min))
+    rand_int = (int(floor(rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min))
     rand_int
 end
 
@@ -505,7 +505,6 @@ function one_point_crossover!(n::Int, nd::Int, pcross::Float64,
     end
     1
 end
-
 
 
 # *********************************************************************
