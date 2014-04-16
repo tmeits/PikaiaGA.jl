@@ -487,6 +487,7 @@ function get_random_int(rand_num_min, rand_num_max)
     rand_int
 end
 
+# http://mathmod.aspu.ru/images/File/ebooks/GAfinal.pdf 
 # *********************************************************************
 function one_point_crossover!(n::Int, nd::Int, pcross::Float64,
     gn1::Vector{Int}, gn2::Vector{Int})
@@ -494,18 +495,20 @@ function one_point_crossover!(n::Int, nd::Int, pcross::Float64,
 # breeds two parent chromosomes into two offspring chromosomes
 # breeding occurs through crossover. 
 # =====================================================================
+    gen1 = gn1
+    gen2 = gn2
 
     if urand() < pcross
         ispl = int(floor(urand()*n*nd))+1 # choose cutting point
-        for i=ispl:(n*nd)
-            t=gn2[i]
-            gn2[i]=gn1[i]
-            gn1[i]=t
+        @printf("%7i\n",ispl)
+        for i=ispl:n*nd
+            t=gen2[i]
+            gen2[i]=gen1[i]
+            gen1[i]=t
         end
     end
-    1
+    gen1, gen2
 end
-
 
 # *********************************************************************
 function cross!(n::Int, nd::Int, pcross::Float64,
