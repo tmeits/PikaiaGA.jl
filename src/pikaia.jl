@@ -13,14 +13,18 @@ export
     init_pop,
     new_pop!,
     urand,
-    encode!,
-    cross!,
-    mutate!,
     report,
-    adjustment!,
     steady_state_reproduction!,
-    select
+    select,
 
+# GENETICS MODULE
+    encode!,
+    decode,
+    cross!,
+    one_point_crossover,
+    mutate!,
+    adjustment!
+   
 global _bestft = 0.0
 global _pmutpv = 0.0
 
@@ -489,7 +493,7 @@ end
 
 # http://mathmod.aspu.ru/images/File/ebooks/GAfinal.pdf 
 # *********************************************************************
-function one_point_crossover!(n::Int, nd::Int, pcross::Float64,
+function one_point_crossover(n::Int, nd::Int, pcross::Float64,
     gn1::Vector{Int}, gn2::Vector{Int})
 # =====================================================================  
 # breeds two parent chromosomes into two offspring chromosomes
