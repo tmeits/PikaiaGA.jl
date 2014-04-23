@@ -86,3 +86,22 @@ Pikaia.cross!(2,8,0.15,gn1,reverse(gn1))
 r=map((x)->Pikaia.get_random_int(-16,16),[1:10000]);
 rt=map((x)-> x >= -16 && x <= 16, r);
 @test sim(rt) == 10000
+
+function test_cross()
+# include in functions doesn't work! ! !
+# at change in the loaded file of change don't come into force    
+#   include("pikaia.jl")
+
+    all_true = Bool[]
+    res_true = true
+    for i=1:10000
+        (istr, a1, a2)=Pikaia.one_point_crossover(1,8,0.67,[1:8],[1:8])
+        push!(all_true, a1 == a2)
+    end
+    for i=1:10000
+        if all_true[i] != true
+            res_true = false
+        end
+    end
+    res_true
+end    
