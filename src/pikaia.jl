@@ -501,17 +501,19 @@ function one_point_crossover(n::Int, nd::Int, pcross::Float64,
 # =====================================================================
     gen1 = gn1
     gen2 = gn2
+    ce   = false
 
     if urand() < pcross
+        ce   = true
         ispl = int(floor(urand()*n*nd))+1 # choose cutting point
-        @printf("%7i\n",ispl)
+#      @printf("%7i\n",ispl)
         for i=ispl:n*nd
-            t=gen2[i]
-            gen2[i]=gen1[i]
-            gen1[i]=t
+            t       = gen2[i]
+            gen2[i] = gen1[i]
+            gen1[i] = t
         end
     end
-    gen1, gen2
+    (ce, gen1, gen2)
 end
 
 # *********************************************************************
