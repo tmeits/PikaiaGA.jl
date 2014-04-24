@@ -483,13 +483,27 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
 end
 
 # *********************************************************************
-function get_random_int(rand_num_min, rand_num_max)
+function get_random_int(rand_num_min::Int, rand_num_max::Int)
 # =====================================================================    
 # Returns a random integer between min and max
 # =====================================================================
     rand_int = (int(floor(rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min))
     rand_int
 end
+
+# *********************************************************************
+function get_random_int(num::Int, rand_num_min::Int, rand_num_max::Int)
+# =====================================================================    
+# Returns a vector casual whole within a minimum and a maximum
+# =====================================================================
+    rand_int = Int[]
+
+    for i=1:num
+        push!(rand_int, (int(floor(rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min)))
+    end
+    rand_int
+end
+
 
 # http://mathmod.aspu.ru/images/File/ebooks/GAfinal.pdf 
 # *********************************************************************
@@ -499,14 +513,22 @@ function one_point_crossover(n::Int, nd::Int, pcross::Float64,
 # breeds two parent chromosomes into two offspring chromosomes
 # breeding occurs through crossover. 
 # =====================================================================
-    gen1 = gn1
-    gen2 = gn2
-    ce   = false
+
+    gen1 = Int[]
+    gen2 = Int[]
+
+    for i=1:length(gn1)
+        push!(gen1, gn1[i])
+        push!(gen2, gn2[i])
+    end
+#    gen1 = gn1
+#    gen2 = gn2
+    ce = false
 
     if urand() < pcross
         ce   = true
         ispl = int(floor(urand()*n*nd))+1 # choose cutting point
-#      @printf("%7i\n",ispl)
+        @printf("%7i\n",ispl)
         for i=ispl:n*nd
             t       = gen2[i]
             gen2[i] = gen1[i]
@@ -529,8 +551,13 @@ function cross!(n::Int, nd::Int, pcross::Float64,
 # crossover, un-comment appropriate line in source code below
 # =====================================================================
 
+    ce = false
+
+
 #   Use crossover probability to decide whether a crossover occurs
     if urand() < pcross
+        ce = true
+        @printf("cross! yes!\n")
 #       Compute first crossover point
         ispl = int(urand()*n*nd)+1
 #       Now choose between one-point and two-point crossover 
@@ -553,7 +580,7 @@ function cross!(n::Int, nd::Int, pcross::Float64,
             gn1[i] = t
         end
     end
-    gn1, gn2
+    ce, gn1, gn2
 end
 
 # *********************************************************************

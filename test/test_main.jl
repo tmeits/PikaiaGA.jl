@@ -94,6 +94,10 @@ function test_cross()
 
     all_true = Bool[]
     res_true = true
+
+    all_true2 = Bool[]
+    res_true2 = true
+
     for i=1:10000
         (istr, a1, a2)=Pikaia.one_point_crossover(1,8,0.67,[1:8],[1:8])
         push!(all_true, a1 == a2)
@@ -103,5 +107,22 @@ function test_cross()
             res_true = false
         end
     end
-    res_true
+
+    for i=1:10000
+        gn1=Pikaia.get_random_int(10,0,8)
+        gn2=Pikaia.get_random_int(10,0,8)
+        (tr, g1, g2) =Pikaia.one_point_crossover(1,10,0.67,gn1,gn2)
+        if tr == true
+            push!(all_true2, g1 != gn1 && g2 != gn2 )
+        else
+            push!(all_true2, true)
+        end
+    end
+    for i=1:10000
+        if all_true2[i] != true
+            res_true2 = false
+        end
+    end
+
+    res_true, res_true2 == false
 end    
