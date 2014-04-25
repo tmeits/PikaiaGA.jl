@@ -27,6 +27,13 @@ export
    
 global _bestft = 0.0
 global _pmutpv = 0.0
+global _tprint = true
+
+function dbg(str::String)
+    if _tprint == true
+        @printf(str)
+    end
+end    
 
 # *********************************************************************    
 function rqsort(n:: Int, a:: Vector{Float64})
@@ -593,6 +600,7 @@ function mutate!(n::Int, nd::Int, pmut::Float64, gn::Vector{Int}, imut::Int)
 #   imut=5    Uniform or creep mutation, variable rate based on fitness
 #   imut=6    Uniform or creep mutation, variable rate based on distance
 # =====================================================================
+
     fix_it_up = false
 
 #   Decide which type of mutation is to occur
