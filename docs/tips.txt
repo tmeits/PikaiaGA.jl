@@ -1,0 +1,4 @@
+Conque Shell : Run interactive commands inside a Vim buffer 
+http://www.vim.org/scripts/script.php?script_id=2771
+onqueterm_2.2.vmb -c 'so %' -c 'q'
+

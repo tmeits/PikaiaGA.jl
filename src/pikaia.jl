@@ -3,6 +3,7 @@
 # Pikaia is a general purpose function optimization Julia lang module 
 # based on a genetic algorithm.
 # **********************************************************************
+# include("pikaia.jl")
 module Pikaia
 
 importall Base
@@ -27,12 +28,15 @@ export
    
 global _bestft = 0.0
 global _pmutpv = 0.0
-global _tprint = true
+global _tprint = false
 
 function dbg(str::String)
+    global _tprint
+
     if _tprint == true
-        @printf(str)
+        print(str)
     end
+    true
 end    
 
 # *********************************************************************    
@@ -563,7 +567,7 @@ function cross!(n::Int, nd::Int, pcross::Float64,
 #   Use crossover probability to decide whether a crossover occurs
     if urand() < pcross
         ce = true
-#       @printf("cross! yes!\n")
+        dbg("cross! yes!\n")
 #       Compute first crossover point
         ispl = int(floor(urand()*n*nd))+1
 #       Now choose between one-point and two-point crossover 

@@ -134,7 +134,6 @@ function test_cross!()
     all_true = Bool[]
     res_true = true
 
-
     for i=1:10000
         gn1=Pikaia.get_random_int(10,0,inum)
         gn2=Pikaia.get_random_int(10,0,inum)
