@@ -521,8 +521,8 @@ function one_point_crossover(n::Int, nd::Int, pcross::Float64,
         push!(gen1, gn1[i])
         push!(gen2, gn2[i])
     end
-#    gen1 = gn1
-#    gen2 = gn2
+#     gen1 = copy(gn1)
+#     gen2 = copy(gn2)
     ce = false
 
     if urand() < pcross
@@ -553,18 +553,17 @@ function cross!(n::Int, nd::Int, pcross::Float64,
 
     ce = false
 
-
 #   Use crossover probability to decide whether a crossover occurs
     if urand() < pcross
         ce = true
-        @printf("cross! yes!\n")
+#       @printf("cross! yes!\n")
 #       Compute first crossover point
-        ispl = int(urand()*n*nd)+1
+        ispl = int(floor(urand()*n*nd))+1
 #       Now choose between one-point and two-point crossover 
         if urand() < 0.5
             ispl2 = n*nd
         else
-            ispl2 = int(urand()*n*nd)+1
+            ispl2 = int(floor(urand()*n*nd))+1
 #           Un-comment following line to enforce one-point crossover
 #           ispl2=n*nd
             if ispl2 < ispl
