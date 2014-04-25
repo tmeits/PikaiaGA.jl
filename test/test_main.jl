@@ -125,4 +125,34 @@ function test_cross()
     end
 
     res_true, res_true2 == false
+end   
+
+function test_cross!()
+
+    const inum=9
+
+    all_true = Bool[]
+    res_true = true
+
+
+    for i=1:10000
+        gn1=Pikaia.get_random_int(10,0,inum)
+        gn2=Pikaia.get_random_int(10,0,inum)
+     
+        gc1=copy(gn1); gc2=copy(gn2); 
+
+        (tr, g1, g2) = Pikaia.cross!(1,10,rand(),gn1,gn2)
+
+        if tr == true
+            push!(all_true, gc1 != gn1 && gc2 != gn2 )
+        end
+    end
+    for i=1:length(all_true)
+        if all_true[i] == false
+            res_true = false
+        end
+    end
+
+    res_true
+
 end    
