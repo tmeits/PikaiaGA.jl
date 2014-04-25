@@ -1,4 +1,19 @@
+==================================================================
 Conque Shell : Run interactive commands inside a Vim buffer 
 http://www.vim.org/scripts/script.php?script_id=2771
 onqueterm_2.2.vmb -c 'so %' -c 'q'
 
+===================================================================
+You want something like
+
+:mksession ~/mysession.vim
+
+Then later you can source that vim file and you'll have your old session back:
+
+:source ~/mysession.vim
+
+or open vim with the -S option:
+
+$ vim -S ~/mysession.vim
+
+===================================================================
