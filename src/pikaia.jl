@@ -249,11 +249,14 @@ function generational_replacement(n::Int, np::Int, ip::Int,
     i1=2*ip-1
     i2=i1+1
     for k=1:n
-        push!(new_phenotype[k, i1], phenotypes[k, 1])
-        push!(new_phenotype[k, i2], phenotypes[k, 2])
+        push!(new_phenotype[k, i1], phenotype[k, 1])
+        push!(new_phenotype[k, i2], phenotype[k, 2])
     end
     new_phenotype
 end
+
+#call stdrep(ff,NMAX,n,np,irep,ielite,
+#     +                     ph,oldph,fitns,ifit,jfit,new)
 
 # *********************************************************************
 function steady_state_reproduction!(ff::Function, ndim::Int, n::Int, 
@@ -606,6 +609,7 @@ function mutate!(n::Int, nd::Int, pmut::Float64, gn::Vector{Int}, imut::Int)
 # =====================================================================
 
     fix_it_up = false
+    me        = false
 
 #   Decide which type of mutation is to occur
     if imut > 4 && urand() < 0.5
@@ -675,12 +679,12 @@ function mutate!(n::Int, nd::Int, pmut::Float64, gn::Vector{Int}, imut::Int)
     else
 #   UNIFORM MUTATION OPERATOR
 #   Subject each locus to random mutation at the rate pmut
-        for i = 1:(n*nd)
+        for i = 1:n*nd
             if urand() < pmut
-                gn[i] = int(urand() * 10.0)
+                gn[i] = int(floor(urand()*10.0))
             end
         end
-    end
+    end # if
     gn
 end
 
@@ -823,6 +827,7 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 #           4. decode offspring genotypes 
             ph[:,1] = decode(n, nd, gn1)
             ph[:,2] = decode(n, nd, gn2)
+            
 #           5. insert into population
             if irep == 1
                 genrep()

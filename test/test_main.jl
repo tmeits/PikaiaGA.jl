@@ -154,4 +154,18 @@ function test_cross!()
 
     res_true
 
-end    
+end   
+
+Pikaia.mutate!(1,10,0.5,Pikaia.get_random_int(10,0,10),6)
+i=0
+for i=1:100000
+    rnd  = Pikaia.get_random_int(10,0,10)
+    temp = copy(rnd)
+    if Pikaia.mutate!(1,10,rand(),rnd,
+        Pikaia.get_random_int(1,6)) != temp
+        i=i+1
+    end
+end
+i
+
+
