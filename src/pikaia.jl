@@ -234,30 +234,33 @@ function report(ivrb::Int, ndim::Int, n::Int, np::Int, nd::Int,
     return true
 end    
 
-# call genrep(NMAX,n,np,ip,ph,newph)
 
+# call genrep(NMAX,n,np,ip,ph,newph)
 # *********************************************************************
 function generational_replacement(n::Int, np::Int, ip::Int,
     phenotype:: Vector{Float64})
 # =====================================================================    
 # full generational replacement: accumulate offspring into new population array
+# Inserts offspring into population, for full generational replacement
 # =====================================================================
 
-    new_phenotype = Float64[]
+    new_phenotype = Array(Float64, n, np)
 
 #   Insert one offspring pair into new population
-    i1=2*ip-1
-    i2=i1+1
+    i1 = 2*ip-1
+    i2 = i1+1
+
     for k=1:n
         push!(new_phenotype[k, i1], phenotype[k, 1])
         push!(new_phenotype[k, i2], phenotype[k, 2])
     end
+    
     new_phenotype
-end
+end 
+# http://qai.narod.ru/GA/meta-heuristics_3.pdf page 17
 
 #call stdrep(ff,NMAX,n,np,irep,ielite,
 #     +                     ph,oldph,fitns,ifit,jfit,new)
-
 # *********************************************************************
 function steady_state_reproduction!(ff::Function, ndim::Int, n::Int, 
     np::Int, irep::Int, ielite::Int, ph::Matrix{Float64}, 
@@ -270,6 +273,7 @@ function steady_state_reproduction!(ff::Function, ndim::Int, n::Int,
 
     nnew = 0
     goto_j = false
+
     for j=1:2
 #       1. compute offspring fitness (with caller's fitness function)
         fit = ff(n, ph[1, j])
@@ -331,7 +335,8 @@ function steady_state_reproduction!(ff::Function, ndim::Int, n::Int,
 end
 
 # *********************************************************************
-function select(population_size::Int, jfit::Vector{Int}, fdif::Float64) # relative fitness differential
+function select(population_size::Int, jfit::Vector{Int}, fdif::Float64) 
+# relative fitness differential
 # =====================================================================    
 # Selects a parent from the population, using roulette wheel
 # algorithm with the relative fitnesses of the phenotypes as
@@ -354,7 +359,7 @@ function select(population_size::Int, jfit::Vector{Int}, fdif::Float64) # relati
 
     idad
 
-end # select
+end #select
 
 # *********************************************************************
 function  rank_pop(n:: Int, fitnes:: Vector{Float64})
@@ -383,8 +388,8 @@ function init_pop(ff:: Function, n:: Int, np:: Int)
 #   Compute initial (random but bounded) phenotypes
 # =====================================================================
 
-    old_ph = rand(n, np)
-    fitns  = rand(np)
+    old_ph = Array(Float64, n, np)
+    fitns  = Array(Float64, np)
 
     for ip = 1:np
         for k = 1:n
@@ -397,7 +402,7 @@ function init_pop(ff:: Function, n:: Int, np:: Int)
 
     return (old_ph, fitns, ifit, jfit)
 
-end # init_pop
+end #init_pop
 
 # **********************************************************************
 function new_pop!(ff::Function, ielite::Int, ndim::Int, n::Int, np::Int, 
@@ -407,7 +412,7 @@ function new_pop!(ff::Function, ielite::Int, ndim::Int, n::Int, np::Int,
 # ======================================================================
     
     nnew = np
-    newph = oldph
+    newph = copy(oldph)
 
 #   if using elitism, introduce in new population fittest of old
 #   population (if greater than fitness of the individual it is
@@ -501,7 +506,9 @@ function get_random_int(rand_num_min::Int, rand_num_max::Int)
 # =====================================================================    
 # Returns a random integer between min and max
 # =====================================================================
+
     rand_int = (int(floor(rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min))
+
     rand_int
 end
 
@@ -510,11 +517,14 @@ function get_random_int(num::Int, rand_num_min::Int, rand_num_max::Int)
 # =====================================================================    
 # Returns a vector casual whole within a minimum and a maximum
 # =====================================================================
+
     rand_int = Int[]
 
     for i=1:num
-        push!(rand_int, (int(floor(rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min)))
+        push!(rand_int, 
+            (int(floor(rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min)))
     end
+
     rand_int
 end
 
@@ -549,6 +559,7 @@ function one_point_crossover(n::Int, nd::Int, pcross::Float64,
             gen1[i] = t
         end
     end
+
     (ce, gen1, gen2)
 end
 
@@ -593,6 +604,7 @@ function cross!(n::Int, nd::Int, pcross::Float64,
             gn1[i] = t
         end
     end
+
     ce, gn1, gn2
 end
 
@@ -685,6 +697,7 @@ function mutate!(n::Int, nd::Int, pmut::Float64, gn::Vector{Int}, imut::Int)
             end
         end
     end # if
+
     gn
 end
 
@@ -782,8 +795,8 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
     ifit  = [1:np]
     jfit  = [1:np]
 
-    ph    = rand(n, 2)
-    newph = rand(n, np)
+    ph    = Array(Float64, n, 2)
+    newph = Array(Float64, n, np)
  
 #   Make sure locally-dimensioned arrays are big enough
     if  n > NMAX || np > PMAX || nd > DMAX 
@@ -796,8 +809,7 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 #   Rank initial population by fitness order
 
     (old_ph, fitns, ifit, jfit) = init_pop(ff, n, np)
-
-   
+ 
     oldph = Array(Float64, n, np)
 
 #   Main Generation Loop
