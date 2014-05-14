@@ -747,7 +747,7 @@ end
 function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 # =====================================================================
 # Optimization (maximization) of user-supplied "fitness" function
-# ff  over n-dimensional parameter space  x  using a basic genetic 
+# ff over n-dimensional parameter space  x  using a basic genetic 
 # algorithm method.
 # =====================================================================
 
@@ -766,34 +766,39 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 #
 #
 
-#   Constants
+#   Constants !!!
     const NMAX = 32  
     const PMAX = 328  
     const DMAX = 6  
 #
-#    o NMAX is the maximum number of adjustable parameters
+#   o NMAX is the maximum number of adjustable parameters
 #      (n <= NMAX)
 #
-#    o PMAX is the maximum population (ctrl(1) <= PMAX)
+#   o PMAX is the maximum population 
+#       (ctrl(1) <= PMAX)
 #
-#    o DMAX is the maximum number of Genes (digits) per Chromosome
-#      segement (parameter) (ctrl(3) <= DMAX)
+#   o DMAX is the maximum number of Genes (digits) per Chromosome
+#       segement (parameter) 
+#       (ctrl(3) <= DMAX)
 #
 
 #   Set control variables from input and defaults
     (status, np, ngen, nd, imut, irep, ielite, ivrb, 
-        pcross, pmutmn, pmutmx, pmut, fdif) = setctl(ctrl, n)
+        pcross, pmutmn, pmutmx, pmut, fdif) 
+        = setctl(ctrl, n)
+
     if status != 0
         warn(" Control vector (ctrl) argument(s) invalid")
+
         return (x, f, status)
     end
 
 #   Local variables
-    gn1   = [1:n*nd]
-    gn2   = [1:n*nd]
-    fitns = rand(np) 
-    ifit  = [1:np]
-    jfit  = [1:np]
+    gn1   = Array(Int, n*nd)
+    gn2   = Array(Int, n*nd)
+    fitns = Array(Float64, np) 
+    ifit  = Array(Int, np)
+    jfit  = Array(Int, np)
 
     ph    = Array(Float64, n, 2)
     newph = Array(Float64, n, np)
@@ -802,6 +807,7 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
     if  n > NMAX || np > PMAX || nd > DMAX 
         warn(" Number of parameters, population, or genes too large")
         status = -1
+
         return (x, f, status)
     end
 
@@ -817,8 +823,9 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 
 #       Main Population Loop
         newtot = 0  
-        for ip = 1:(np/2)
+        for ip = 1:int(np/2)
 
+#           selection strategies            
 #           1. pick two parents
             ip1 = select(np, jfit, fdif)
             while true
@@ -845,13 +852,14 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
                 genrep()
             else
                 stdrep()
-                newtot=newtot+new
+                newtot = newtot+new
             end
         end # End of Main Population Loop
 
 #       if running full generational replacement: swap populations
         if irep == 1
-            (old_ph, fitns, ifit, jfit) = new_pop(ff, ielite, ndim, n, np, oldph, fitns)
+            (old_ph, fitns, ifit, jfit) 
+                = new_pop(ff, ielite, ndim, n, np, oldph, fitns)
         end
 
 #       adjust mutation rate?
@@ -860,18 +868,20 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
         end
 
         if ivrb > 0
-            report()
+            report(ivrb, NMAX, n, np, nd, oldph, fitns, ifit, pmut, ig, newtot)
         end
 
     end # End of Main Generation Loop 
 
 #   Return best phenotype and its fitness
-    for k = 1 : n
+    for k = 1:n
         x[k] = oldph[k, ifits[np]]
     end
+    
     f = fitns[ifit[np]]
+
 # Return in typle
-return (x, f, status)
+    return (x, f, status)
 end # pikaia
 
 end # Pikaia
