@@ -237,22 +237,25 @@ end
 
 # call genrep(NMAX,n,np,ip,ph,newph)
 # *********************************************************************
-function generational_replacement(n::Int, np::Int, ip::Int,
-    phenotype:: Vector{Float64})
+function generational_replacement(
+    n::Int,  # n is the number of adjustable parameters
+    np::Int, # number of individuals in a population
+    ip::Int, # Population Loop
+    new_phenotype:: Vector{Float64}) #
 # =====================================================================    
 # full generational replacement: accumulate offspring into new population array
 # Inserts offspring into population, for full generational replacement
 # =====================================================================
 
-    new_phenotype = Array(Float64, n, np)
+    local_new_phenotype = copy(new_phenotype)
 
 #   Insert one offspring pair into new population
     i1 = 2*ip-1
     i2 = i1+1
 
     for k=1:n
-        push!(new_phenotype[k, i1], phenotype[k, 1])
-        push!(new_phenotype[k, i2], phenotype[k, 2])
+        local_new_phenotype[k, i1], ph[k, 1])
+        local_new_phenotype[k, i2], ph[k, 2])
     end
     
     new_phenotype
@@ -449,6 +452,15 @@ end
 #Float64
 # ??????
 
+#[16:55] <tmeits> hi
+#[16:56] <tmeits> julia> typeof(10.^6) Int64  julia> typeof(10.0^6) Float64 ??????
+#[17:01] <acetoline> 10.^6 is parsed as 10 .^ 6
+#[17:01] <acetoline> .^ is an operator
+#[17:02] <acetoline> you probably mean 10. ^ 6
+#[17:02] <tmeits> thanks is clear
+#[17:03] <tmeits> I tried precisely once again thanks
+
+# using ASCIIPlots
 
 # ********************************************************************
 function encode!(n::Int, nd::Int, ph::Vector{Float64}, gn::Vector{Int})
@@ -753,8 +765,10 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 
 # Version 0.0.1   [ 2014 February 21 ]
 
-#   Output: 
-    x = rand(n); f = 0.0; status  = 0
+#   Output:
+    x       = rand(n); 
+    f       = 0.0; 
+    status  = 0
 #
 #    o Array  x[1:n]  is the "fittest" (optimal) solution found,
 #       i.e., the solution which maximizes fitness function ff
@@ -801,7 +815,7 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
     jfit  = Array(Int, np)
 
     ph    = Array(Float64, n, 2)
-    newph = Array(Float64, n, np)
+    new_ph = Array(Float64, n, np)
  
 #   Make sure locally-dimensioned arrays are big enough
     if  n > NMAX || np > PMAX || nd > DMAX 
@@ -816,7 +830,7 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 
     (old_ph, fitns, ifit, jfit) = init_pop(ff, n, np)
  
-    oldph = Array(Float64, n, np)
+#    oldph = Array(Float64, n, np)
 
 #   Main Generation Loop
     for ig = 1:ngen
@@ -835,8 +849,8 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
                 end
             end
 #           2. encode parent phenotypes
-            encode!(n, nd, oldph[:, ip1], gn1)
-            encode!(n, nd, oldph[:, ip2], gn2)
+            encode!(n, nd, old_ph[:, ip1], gn1)
+            encode!(n, nd, old_ph[:, ip2], gn2)
 
 #           3. breed
             cross!(n, nd, pcross, gn1, gn2)
@@ -848,18 +862,23 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
             ph[:,2] = decode(n, nd, gn2)
             
 #           5. insert into population
+# irep == reproduction plan; 1/2/3=Full generationalreplacement/Steady-state-replace-random/
+# Steady-state-replace-worst (default is 3)
+
             if irep == 1
-                genrep()
+# full generational replacement: accumulate offspring into new population array              
+                new_ph = genrep(n, np, ip, phi, new_ph)
             else
                 stdrep()
                 newtot = newtot+new
             end
+
         end # End of Main Population Loop
 
 #       if running full generational replacement: swap populations
         if irep == 1
             (old_ph, fitns, ifit, jfit) 
-                = new_pop(ff, ielite, ndim, n, np, oldph, fitns)
+                = new_pop(ff, ielite, ndim, n, np, old_ph, fitns)
         end
 
 #       adjust mutation rate?
@@ -867,15 +886,17 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
             adjmut()
         end
 
+# printed output 0/1/2=None/Minimal/Verbose (default is 0)
+
         if ivrb > 0
-            report(ivrb, NMAX, n, np, nd, oldph, fitns, ifit, pmut, ig, newtot)
+            report(ivrb, NMAX, n, np, nd, old_ph, fitns, ifit, pmut, ig, newtot)
         end
 
     end # End of Main Generation Loop 
 
 #   Return best phenotype and its fitness
     for k = 1:n
-        x[k] = oldph[k, ifits[np]]
+        x[k] = old_ph[k, ifits[np]]
     end
     
     f = fitns[ifit[np]]
