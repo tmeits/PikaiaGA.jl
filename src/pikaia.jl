@@ -241,7 +241,8 @@ function generational_replacement(
     n::Int,  # n is the number of adjustable parameters
     np::Int, # number of individuals in a population
     ip::Int, # Population Loop
-    new_phenotype:: Vector{Float64}) #
+    ph:: Array{Float64,2}, 
+    new_phenotype:: Vector{Float64}) 
 # =====================================================================    
 # full generational replacement: accumulate offspring into new population array
 # Inserts offspring into population, for full generational replacement
@@ -254,11 +255,11 @@ function generational_replacement(
     i2 = i1+1
 
     for k=1:n
-        local_new_phenotype[k, i1], ph[k, 1])
-        local_new_phenotype[k, i2], ph[k, 2])
+        local_new_phenotype[k, i1] = ph[k, 1]
+        local_new_phenotype[k, i2] = ph[k, 2]
     end
     
-    new_phenotype
+    local_new_phenotype
 end 
 # http://qai.narod.ru/GA/meta-heuristics_3.pdf page 17
 
@@ -365,6 +366,21 @@ function select(population_size::Int, jfit::Vector{Int}, fdif::Float64)
 end #select
 
 # *********************************************************************
+function select2(population_size::Int, jfit::Vector{Int}, fdif::Float64)
+
+#           1. pick two parents
+            ip1 = select(population_size, jfit, fdif)
+            while true
+                ip2 = select(population_size, jfit, fdif)
+                if ip1 != ip2
+                    break
+                end
+            end
+    
+    return (ip1, ip2)
+end
+
+# *********************************************************************
 function  rank_pop(n:: Int, fitnes:: Vector{Float64})
 # =====================================================================    
 # Rank population by fitness order
@@ -384,11 +400,27 @@ function  rank_pop(n:: Int, fitnes:: Vector{Float64})
 
 end # rank_pop
 
+# *********************************************************************
+function init_phenotype(number_parameters:: Int, population_size:: Int)
+# =====================================================================
+# Compute initial (random but bounded) phenotypes
+# =====================================================================
+    
+    phenotypes = Array(Float64, number_parameters, population_size)
 
+    for i = 1:population_size
+        for j = 1:number_parameters
+            phenotypes[number_parameters, population_size] = rand()
+        end
+    end
+
+    phenotypes
+
+end
 # *********************************************************************
 function init_pop(ff:: Function, n:: Int, np:: Int)
 # =====================================================================    
-#   Compute initial (random but bounded) phenotypes
+# Compute initial (random but bounded) phenotypes
 # =====================================================================
 
     old_ph = Array(Float64, n, np)
@@ -798,8 +830,7 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 
 #   Set control variables from input and defaults
     (status, np, ngen, nd, imut, irep, ielite, ivrb, 
-        pcross, pmutmn, pmutmx, pmut, fdif) 
-        = setctl(ctrl, n)
+        pcross, pmutmn, pmutmx, pmut, fdif) = setctl(ctrl, n)
 
     if status != 0
         warn(" Control vector (ctrl) argument(s) invalid")
@@ -867,7 +898,7 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 
             if irep == 1
 # full generational replacement: accumulate offspring into new population array              
-                new_ph = genrep(n, np, ip, phi, new_ph)
+                new_ph = genrep(n, np, ip, ph, new_ph)
             else
                 stdrep()
                 newtot = newtot+new
@@ -877,8 +908,8 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 
 #       if running full generational replacement: swap populations
         if irep == 1
-            (old_ph, fitns, ifit, jfit) 
-                = new_pop(ff, ielite, ndim, n, np, old_ph, fitns)
+            (old_ph, fitns, ifit, jfit) = 
+                new_pop(ff, ielite, ndim, n, np, old_ph, fitns)
         end
 
 #       adjust mutation rate?

@@ -169,3 +169,11 @@ end
 i
 
 
+include("pikaia.jl")
+ph=Pikaia.init_phenotype(1, 10)
+(ph,fitns,ifit,jfit)=Pikaia.init_pop(TestFunctions.rastrigin,1,4)
+Pikaia.generational_replacement(1,10,4,ph)
+
+
+
+
