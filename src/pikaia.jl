@@ -11,12 +11,14 @@ importall Base
 export 
     pikaia, 
     rqsort,
+    init_phenotype,
     init_pop,
     new_pop!,
     urand,
     report,
     steady_state_reproduction!,
     select,
+    select2,
 
 # GENETICS MODULE
     encode!,
@@ -242,7 +244,7 @@ function generational_replacement(
     np::Int, # number of individuals in a population
     ip::Int, # Population Loop
     ph:: Array{Float64,2}, 
-    new_phenotype:: Vector{Float64}) 
+    new_phenotype:: Matrix{Float64}) 
 # =====================================================================    
 # full generational replacement: accumulate offspring into new population array
 # Inserts offspring into population, for full generational replacement
@@ -361,21 +363,26 @@ function select(population_size::Int, jfit::Vector{Int}, fdif::Float64)
         end
     end
 
-    idad
+    return idad
 
 end #select
 
 # *********************************************************************
 function select2(population_size::Int, jfit::Vector{Int}, fdif::Float64)
 
-#           1. pick two parents
-            ip1 = select(population_size, jfit, fdif)
-            while true
-                ip2 = select(population_size, jfit, fdif)
-                if ip1 != ip2
-                    break
-                end
-            end
+    ip1 = -1
+    ip2 = -1
+
+#   1. pick two parents
+    ip1 = select(population_size, jfit, fdif)
+#    @printf("selct2::ip1= %6i\n", ip1)
+    while true
+        ip2 = select(population_size, jfit, fdif)
+#        @printf("selct2::ip2= %6i\n", ip2)
+        if ip1 != ip2
+            break
+        end
+    end
     
     return (ip1, ip2)
 end
@@ -410,11 +417,11 @@ function init_phenotype(number_parameters:: Int, population_size:: Int)
 
     for i = 1:population_size
         for j = 1:number_parameters
-            phenotypes[number_parameters, population_size] = rand()
+            phenotypes[j, i] = rand()
         end
     end
 
-    phenotypes
+    return phenotypes
 
 end
 # *********************************************************************
