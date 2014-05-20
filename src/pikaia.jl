@@ -243,8 +243,9 @@ function generational_replacement(
     n::Int,  # n is the number of adjustable parameters
     np::Int, # number of individuals in a population
     ip::Int, # Population Loop
-    ph:: Array{Float64,2}, 
-    new_phenotype:: Matrix{Float64}) 
+    ph:: Array{Float64,2}, # 
+    new_phenotype:: Matrix{Float64} #
+    ) 
 # =====================================================================    
 # full generational replacement: accumulate offspring into new population array
 # Inserts offspring into population, for full generational replacement
@@ -261,17 +262,28 @@ function generational_replacement(
         local_new_phenotype[k, i2] = ph[k, 2]
     end
     
-    local_new_phenotype
+    return local_new_phenotype
 end 
 # http://qai.narod.ru/GA/meta-heuristics_3.pdf page 17
 
 #call stdrep(ff,NMAX,n,np,irep,ielite,
 #     +                     ph,oldph,fitns,ifit,jfit,new)
 # *********************************************************************
-function steady_state_reproduction!(ff::Function, ndim::Int, n::Int, 
-    np::Int, irep::Int, ielite::Int, ph::Matrix{Float64}, 
-    oldph:: Matrix{Float64}, fitns:: Vector{Float64}, 
-    ifit::Vector{Int},jfit::Vector{Int})
+function steady_state_reproduction!(
+    ff::Function,           # fitness function
+    ndim::Int,              # (constant) MAX is the number of adjustable parameters
+    n::Int,                 # n is the number of adjustable parameters
+    np::Int,                # number of individuals in a population
+    irep::Int,              # ctrl(10) type replacement 1,2,3
+    ielite::Int,            # ctrl(11) elitism flag; 0/1=off/on (default is 0)
+                            # (Applies only to reproduction plans 1 and 2)
+
+    ph::Matrix{Float64},    #
+    oldph:: Matrix{Float64},#
+    fitns:: Vector{Float64},#
+    ifit::Vector{Int},      #
+    jfit::Vector{Int}       #
+    )
 # =====================================================================    
 # steady-state reproduction: insert offspring pair into population
 # only if they are fit enough (replace-random if irep=2 or replace-worst if irep=3).
@@ -280,22 +292,23 @@ function steady_state_reproduction!(ff::Function, ndim::Int, n::Int,
     nnew = 0
     goto_j = false
 
-    for j=1:2
+    for j = 1:2
+
 #       1. compute offspring fitness (with caller's fitness function)
-        fit = ff(n, ph[1, j])
+        fit = ff(n, ph[:, j])
         
 #       2. if fit enough, insert in population
-        for i=reverse(1:np)
+        for i = reverse(1:np)
             if fit > fitns[ifit[i]]
 #               make sure the phenotype is not already in the population
                 if i < np
-                    for k=1:n
+                    for k = 1:n
                         if oldph[k, ifit[i+1]] != ph[k,j]
                             goto_j=true
                             break
                         end
                     end # k
-                end # i
+                end # if
                 if goto_j == true
                     break
                 else
@@ -339,6 +352,9 @@ function steady_state_reproduction!(ff::Function, ndim::Int, n::Int,
         end # i
     end # j
 end
+# http://blog.yhathq.com/posts/julia-neural-networks.html
+# http://arstechnica.com/science/2014/05/scientific-computings-future-can-any-coding-language-top-a-1950s-behemoth/
+# http://juliawebstack.org/
 
 # *********************************************************************
 function select(population_size::Int, jfit::Vector{Int}, fdif::Float64) 
@@ -763,11 +779,11 @@ function adjustment!(ndim::Int, n::Int, np::Int, oldph::Matrix{Float64},
 #    imut=3 or imut=6 : adjustment based on metric distance
 #                       between best and median individuals
 
-#     dynamical adjustment of mutation rate;
-#        imut=2 or imut=5 : adjustment based on fitness differential
-#                           between best and median individuals
-#        imut=3 or imut=6 : adjustment based on metric distance
-#                           between best and median individuals
+# dynamical adjustment of mutation rate;
+#    imut=2 or imut=5 : adjustment based on fitness differential
+#                       between best and median individuals
+#    imut=3 or imut=6 : adjustment based on metric distance
+#                       between best and median individuals
 # =====================================================================
 
     const rdiflo=0.05
