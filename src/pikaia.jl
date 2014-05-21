@@ -21,6 +21,7 @@ export
     select2,
 
 # GENETICS MODULE
+
     encode!,
     decode,
     cross!,
@@ -38,6 +39,7 @@ function dbg(str::String)
     if _tprint == true
         print(str)
     end
+
     true
 end    
 
@@ -271,7 +273,7 @@ end
 # *********************************************************************
 function steady_state_reproduction!(
     ff::Function,           # fitness function
-    ndim::Int,              # (constant) MAX is the number of adjustable parameters
+#   ndim::Int,              # (constant) MAX is the number of adjustable parameters
     n::Int,                 # n is the number of adjustable parameters
     np::Int,                # number of individuals in a population
     irep::Int,              # ctrl(10) type replacement 1,2,3
@@ -288,14 +290,15 @@ function steady_state_reproduction!(
 # steady-state reproduction: insert offspring pair into population
 # only if they are fit enough (replace-random if irep=2 or replace-worst if irep=3).
 # =====================================================================
-
+# http://www.epathtrade.com/product.asp?/G-5600E-1D-G-SHOCK-Tough-Solar-Sport-Watch,194.htm
+# I saw in a network the management for Julia of the Google's R Style Guide type, and now I can't find. Throw the link.
     nnew = 0
     goto_j = false
 
     for j = 1:2
 
 #       1. compute offspring fitness (with caller's fitness function)
-        fit = ff(n, ph[:, j])
+        fit = ff(ph[:, j])
         
 #       2. if fit enough, insert in population
         for i = reverse(1:np)
@@ -304,14 +307,12 @@ function steady_state_reproduction!(
                 if i < np
                     for k = 1:n
                         if oldph[k, ifit[i+1]] != ph[k,j]
-                            goto_j=true
+                            goto_j = true
                             break
                         end
                     end # k
                 end # if
                 if goto_j == true
-                    break
-                else
 #                   offspring is fit enough for insertion, and is unique
  
 #                   (i) insert phenotype at appropriate place in population
@@ -347,11 +348,14 @@ function steady_state_reproduction!(
                     end
                     nnew = nnew+1
                     break
-                end # goto_j
-            end   
-        end # i
-    end # j
-end
+                end # if goto_j
+            end  # if fit 
+        end # for i
+    end # for j
+    
+    return oldph
+
+end # function steady_state_reproduction!
 # http://blog.yhathq.com/posts/julia-neural-networks.html
 # http://arstechnica.com/science/2014/05/scientific-computings-future-can-any-coding-language-top-a-1950s-behemoth/
 # http://juliawebstack.org/

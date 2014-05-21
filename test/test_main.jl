@@ -187,5 +187,5 @@ tic()
 ph2=Array(Float64,1,2)
 ph2[:,1]=ph[:,ip1]
 ph2[:,2]=ph[:,ip2]
-Pikaia.steady_state_reproduction!()
+Pikaia.steady_state_reproduction!(TestFunctions.rastrigin,1,10,2,0,ph2,ph,fitns,ifit,jfit)
 toc()
