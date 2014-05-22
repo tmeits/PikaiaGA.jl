@@ -180,12 +180,13 @@ ph2[:,2]=ph[:,ip2]
 Pikaia.generational_replacement(1,10,4,ph2, ph)
 
 # http://www.reddit.com/r/Julia/
-
-tic()
-(ph,fitns,ifit,jfit)=Pikaia.init_pop(TestFunctions.rastrigin,1,10)
-(ip1, ip2)=Pikaia.select2(10, ifit, 0.7)
-ph2=Array(Float64,1,2)
-ph2[:,1]=ph[:,ip1]
-ph2[:,2]=ph[:,ip2]
-Pikaia.steady_state_reproduction!(TestFunctions.rastrigin,1,10,2,0,ph2,ph,fitns,ifit,jfit)
-toc()
+for idx=1:1000
+    tic()
+    (ph,fitns,ifit,jfit)=Pikaia.init_pop(TestFunctions.rastrigin,1,10)
+    (ip1, ip2)=Pikaia.select2(10, ifit, 0.7)
+    ph2=Array(Float64,1,2)
+    ph2[:,1]=ph[:,ip1]
+    ph2[:,2]=ph[:,ip2]
+    Pikaia.steady_state_reproduction!(TestFunctions.rastrigin,1,10,2,0,ph2,ph,fitns,ifit,jfit)
+    toc()
+end

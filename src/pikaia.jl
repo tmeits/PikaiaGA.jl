@@ -303,6 +303,7 @@ function steady_state_reproduction!(
 #       2. if fit enough, insert in population
         for i = reverse(1:np)
             if fit > fitns[ifit[i]]
+                @printf("steady_state_reproduction! fit>")
 #               make sure the phenotype is not already in the population
                 if i < np
                     for k = 1:n
@@ -319,10 +320,11 @@ function steady_state_reproduction!(
                     if irep == 3
                         i1=1
                     elseif ielite == 0 || i == np
-                        i1=int(urand()*np)+1
+                        i1=int(floor(urand()*np))+1
                     else
-                        i1=int(urand()*(np-1))+1
+                        i1=int(floor(urand()*(np-1)))+1
                     end
+                    # ERROR: BoundsError()?
                     if1=ifit[i1]
                     fitns[if1]=fit
                     for k=1:n
