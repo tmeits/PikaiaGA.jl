@@ -324,12 +324,14 @@ function steady_state_reproduction!(
                     else
                         i1=int(floor(urand()*(np-1)))+1
                     end
-                    # ERROR: BoundsError()?
+
                     if1=ifit[i1]
                     fitns[if1]=fit
+                    
                     for k=1:n
                         oldph[k,if1]=ph[k,j]
                     end
+
 #                   (ii) shift and update ranking arrays
                     if i < i1
 #                       shift up 
@@ -348,8 +350,10 @@ function steady_state_reproduction!(
                         end
                         ifit[i]=if1
                     end
+
                     nnew = nnew+1
                     break
+
                 end # if goto_j
             end  # if fit 
         end # for i
