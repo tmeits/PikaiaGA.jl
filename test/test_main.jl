@@ -190,3 +190,4 @@ for idx=1:1000
     Pikaia.steady_state_reproduction!(TestFunctions.rastrigin,1,10,2,0,ph2,ph,fitns,ifit,jfit)
     toc()
 end
+# TODO create function steady_state_reproduction_test

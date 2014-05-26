@@ -329,7 +329,7 @@ function steady_state_reproduction!(
                     fitns[if1]=fit
                     
                     for k=1:n
-                        oldph[k,if1]=ph[k,j]
+                        oldph[k,if1]=ph[k,j] # 
                     end
 
 #                   (ii) shift and update ranking arrays
