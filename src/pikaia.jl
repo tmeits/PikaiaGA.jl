@@ -1,5 +1,4 @@
 # *********************************************************************
-# The Julia Language: a fresh approach to technical computing.
 # Pikaia is a general purpose function optimization Julia lang module 
 # based on a genetic algorithm.
 # **********************************************************************
@@ -8,7 +7,8 @@ module Pikaia
 
 importall Base
 
-export 
+export
+
     pikaia, 
     rqsort,
     init_phenotype,
@@ -43,13 +43,25 @@ function dbg(str::String)
     true
 end    
 
+# *********************************************************************
+function fortran_int(var:: Float64)
+# =====================================================================
+# integer part var:: Float64
+# =====================================================================    
+
+    int_var = int(floor(var))
+
+    return int_var
+end    
+
 # *********************************************************************    
 function rqsort(n:: Int, a:: Vector{Float64})
 # =====================================================================    
 # Return integer array p which indexes array a in increasing order.
 # Array a is not disturbed.
 # ===================================================================== 
-    sortperm(a) # the permutation to sort an array
+
+    return sortperm(a) # the permutation to sort an array
 end
 
 # *********************************************************************
@@ -62,22 +74,27 @@ function urand()
     return rand()
 end
 
-function set_ctrl_default()
+# *********************************************************************
+function set_ctrl_default(seed:: Int)
+# =====================================================================    
 # Initialize some empty vectors
+# =====================================================================
+
     ctrl = Float64[]
 
 # First, initialize the random-number generator
-    srand(123456)
+    srand(seed)
 
 # Set control variables (use defaults)
-    for i= [1:12]
+    for i = [1:12]
         # Push default values into an array
-        ctrl = push!(ctrl, -1.)
+        ctrl = push!(ctrl, -1.0)
     end
-    ctrl[1]=1
-    ctrl[2]=50.
+
+    ctrl[1] = 1
+    ctrl[2] = 50.
     
-    ctrl
+    return ctrl
 end    
 
 
@@ -320,9 +337,9 @@ function steady_state_reproduction!(
                     if irep == 3
                         i1=1
                     elseif ielite == 0 || i == np
-                        i1=int(floor(urand()*np))+1
+                        i1=fortran_int((urand()*np))+1
                     else
-                        i1=int(floor(urand()*(np-1)))+1
+                        i1=fortran_int((urand()*(np-1)))+1
                     end
 
                     if1=ifit[i1]
@@ -542,7 +559,7 @@ function encode!(n::Int, nd::Int, ph::Vector{Float64}, gn::Vector{Int})
 #       @printf("ip = %6i\n", ip)
         for j = reverse([1:nd])
             gn[ii+j] = mod(ip, 10)
-            ip=int(floor(ip/10))
+            ip=fortran_int((ip/10))
 #           @printf("%6i %6i %9.4f %6i \n", ii, j,  mod(ip, 10), ip)
         end
         ii = ii+nd
@@ -584,7 +601,7 @@ function get_random_int(rand_num_min::Int, rand_num_max::Int)
 # Returns a random integer between min and max
 # =====================================================================
 
-    rand_int = (int(floor(rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min))
+    rand_int = (fortran_int((rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min))
 
     rand_int
 end
@@ -599,7 +616,7 @@ function get_random_int(num::Int, rand_num_min::Int, rand_num_max::Int)
 
     for i=1:num
         push!(rand_int, 
-            (int(floor(rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min)))
+            (fortran_int((rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min)))
     end
 
     rand_int
@@ -628,7 +645,7 @@ function one_point_crossover(n::Int, nd::Int, pcross::Float64,
 
     if urand() < pcross
         ce   = true
-        ispl = int(floor(urand()*n*nd))+1 # choose cutting point
+        ispl = fortran_int((urand()*n*nd))+1 # choose cutting point
         @printf("%7i\n",ispl)
         for i=ispl:n*nd
             t       = gen2[i]
@@ -660,12 +677,12 @@ function cross!(n::Int, nd::Int, pcross::Float64,
         ce = true
         dbg("cross! yes!\n")
 #       Compute first crossover point
-        ispl = int(floor(urand()*n*nd))+1
+        ispl = fortran_int((urand()*n*nd))+1
 #       Now choose between one-point and two-point crossover 
         if urand() < 0.5
             ispl2 = n*nd
         else
-            ispl2 = int(floor(urand()*n*nd))+1
+            ispl2 = fortran_int((urand()*n*nd))+1
 #           Un-comment following line to enforce one-point crossover
 #           ispl2=n*nd
             if ispl2 < ispl
@@ -770,7 +787,7 @@ function mutate!(n::Int, nd::Int, pmut::Float64, gn::Vector{Int}, imut::Int)
 #   Subject each locus to random mutation at the rate pmut
         for i = 1:n*nd
             if urand() < pmut
-                gn[i] = int(floor(urand()*10.0))
+                gn[i] = fortran_int((urand()*10.0))
             end
         end
     end # if
