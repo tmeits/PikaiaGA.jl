@@ -80,19 +80,22 @@ function set_ctrl_default(seed:: Int)
 # Initialize some empty vectors
 # =====================================================================
 
-    ctrl = Float64[]
+    const size_ctrl = 12
+
+    index = [1: size_ctrl]
+    ctrl  = Float64[]
 
 # First, initialize the random-number generator
     srand(seed)
 
 # Set control variables (use defaults)
-    for i = [1:12]
+    for i in index
         # Push default values into an array
         ctrl = push!(ctrl, -1.0)
     end
 
     ctrl[1] = 1
-    ctrl[2] = 50.
+    ctrl[2] = 50.0
     
     return ctrl
 end    
@@ -110,7 +113,7 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
     global _bestft::Float64 = 0.0
     global _pmutpv::Float64 = 0.0
 
-    for i=1:length(ctrl)
+    for i = 1:length(ctrl)
         if ctrl[i] < 0.
             ctrl[i] = DEFAULT[i]
         end
@@ -128,6 +131,7 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
     ielite = int(ctrl[11])
     ivrb   = int(ctrl[12])
     status = 0
+
 #   Print a header
     if ivrb > 0
         @printf("******************************************************************\n")
@@ -229,12 +233,12 @@ function report(ivrb::Int, ndim::Int, n::Int, np::Int, nd::Int,
 
     if pmut != _pmutpv
         _pmutpv = pmut
-        rpt = true
+        rpt     = true
     end
 
     if fitns[ifit[np]] != _bestft
         _bestft = fitns[ifit[np]]
-        rpt = true
+        rpt     = true
     end
 
     if rpt == true || ivrb > 2
@@ -245,13 +249,14 @@ function report(ivrb::Int, ndim::Int, n::Int, np::Int, nd::Int,
 
         @printf(" %6i %6i %10.6f %10.6f %10.6f %10.6f \n",
             ig, nnew, pmut, fitns[ifit[np]], fitns[ifit[np-1]], fitns[ifit[np/2]])
-        for k=1:n
+        for k = 1:n
             @printf(" %10i  %10i  %10i",
                 iround(ndpwr*oldph[k,ifit[np]]),
                 iround(ndpwr*oldph[k,ifit[np-1]]),
                 iround(ndpwr*oldph[k,ifit[np/2]]))
         end
     end
+
     return true
 end    
 
@@ -335,37 +340,41 @@ function steady_state_reproduction!(
  
 #                   (i) insert phenotype at appropriate place in population
                     if irep == 3
-                        i1=1
+                        i1 = 1
                     elseif ielite == 0 || i == np
-                        i1=fortran_int((urand()*np))+1
+                        i1 = fortran_int((urand()*np))+1
                     else
-                        i1=fortran_int((urand()*(np-1)))+1
+                        i1 = fortran_int((urand()*(np-1)))+1
                     end
 
-                    if1=ifit[i1]
-                    fitns[if1]=fit
+                    if1        = ifit[i1]
+                    fitns[if1] = fit
                     
-                    for k=1:n
-                        oldph[k,if1]=ph[k,j] # 
+                    for k = 1:n
+                        oldph[k,if1] = ph[k,j] # 
                     end
 
 #                   (ii) shift and update ranking arrays
                     if i < i1
 #                       shift up 
-                        jfit[if1]=np-i
-                        for k=reverse((i+1):(i1-1))
+                        jfit[if1] = np-i
+
+                        for k = reverse((i+1):(i1-1))
                             jfit[ifit[k]] = jfit[ifit[k]]-1
-                            ifit[k+1]=ifit[k]
+                            ifit[k+1]     = ifit[k]
                         end
-                        ifit[i]=if1
+                        
+                        ifit[i] = if1
                     else
 #                       shift down
-                        jfit[if1]=np-i+1
-                        for k=(i1+1):i
+                        jfit[if1] = np-i+1
+
+                        for k = (i1+1):i
                             jfit[ifit[k]] = jfit[ifit[k]]+1
-                            ifit[k-1]=ifit[k]
+                            ifit[k-1]     = ifit[k]
                         end
-                        ifit[i]=if1
+
+                        ifit[i] = if1
                     end
 
                     nnew = nnew+1
