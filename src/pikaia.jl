@@ -401,22 +401,21 @@ function select(population_size::Int, jfit::Vector{Int}, fdif::Float64)
 # the "hit" probabilities [see Davis 1991, chap. 1].
 # =====================================================================   
 
-    idad = 0
+    idad  = 0
 
     ps1   = population_size+1 
     dice  = urand()*population_size*ps1
     rtfit = 0.0
 
-    for i= 1:population_size
+    for i = 1:population_size
         rtfit = rtfit+ps1+fdif*(ps1-2*jfit[i])
         if rtfit >= dice
-            idad=i
+            idad = i
             break
         end
     end
 
     return idad
-
 end #select
 
 # *********************************************************************
@@ -456,7 +455,6 @@ function  rank_pop(n:: Int, fitnes:: Vector{Float64})
     end
 
     return (indx, rank)
-
 end # rank_pop
 
 # *********************************************************************
@@ -474,7 +472,6 @@ function init_phenotype(number_parameters:: Int, population_size:: Int)
     end
 
     return phenotypes
-
 end
 # *********************************************************************
 function init_pop(ff:: Function, n:: Int, np:: Int)
@@ -499,38 +496,43 @@ function init_pop(ff:: Function, n:: Int, np:: Int)
 end #init_pop
 
 # **********************************************************************
-function new_pop!(ff::Function, ielite::Int, ndim::Int, n::Int, np::Int, 
-    oldph::Matrix{Float64}, newph::Matrix{Float64})
+function new_pop!(
+    ff::Function, 
+    ielite::Int, 
+    ndim::Int, 
+    n::Int, 
+    np::Int, 
+    oldph::Matrix{Float64}, 
+    newph::Matrix{Float64})
 # ======================================================================    
 # replaces old population by new; recomputes fitnesses & ranks
 # ======================================================================
     
-    nnew = np
+    nnew  = np
     newph = copy(oldph)
 
 #   if using elitism, introduce in new population fittest of old
 #   population (if greater than fitness of the individual it is
 #   to replace)
     if ielite == 1 && ff(n, newph[1,1]) < fitns[ifit[n]]
-        for k = 1 : n
+        for k = 1:n
             newph[k, 1] = oldph[k, ifit[np]]
         end
         nnew = nnew - 1
     end
 
 #   replace population
-    for i = 1 : np
-        for l = 1 : n
+    for i = 1:np
+        for l = 1:n
             oldph[k, i] = newph[k, i]
         end
 #       get fitness using caller's fitness function
-        fitns[i]=ff(n,oldph[1,i])        
+        fitns[i] = ff(n,oldph[1,i])        
     end
 #   compute new population fitness rank order
     (ifit, jfit) = rank_pop(np,fitns)
 
     return (newph, fitns, ifit, jfit)
-
 end
 
 # http://whitedwarf.org/metcalfe/node8.htmi
@@ -560,7 +562,7 @@ function encode!(n::Int, nd::Int, ph::Vector{Float64}, gn::Vector{Int})
 # ph(k) are x,y coordinates [ 0 < x,y < 1 ]
 # ====================================================================
 
-    z  = 10.0^nd
+    z  = 10.0 ^ nd
     ii = 0
 
     for i = 1:n
@@ -568,13 +570,13 @@ function encode!(n::Int, nd::Int, ph::Vector{Float64}, gn::Vector{Int})
 #       @printf("ip = %6i\n", ip)
         for j = reverse([1:nd])
             gn[ii+j] = mod(ip, 10)
-            ip=fortran_int((ip/10))
+            ip = fortran_int((ip/10))
 #           @printf("%6i %6i %9.4f %6i \n", ii, j,  mod(ip, 10), ip)
         end
         ii = ii+nd
     end
 
-    gn
+    return gn
 end
 
 # *********************************************************************
@@ -588,7 +590,7 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
 
 #   z = 10.^(-nd)
 #   a^(-b) = 1/ ( a^b)
-    z  = 1./(10.^nd)
+    z  = 1.0/(10.0 ^ nd)
     ii = 0
 
     for i = 1:n
@@ -598,10 +600,10 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
         end
 #        ph[i]=ip*z
         push!(ph, ip*z)
-        ii=ii+nd
+        ii = ii+nd
     end
 
-    ph
+    return ph
 end
 
 # *********************************************************************
@@ -644,7 +646,7 @@ function one_point_crossover(n::Int, nd::Int, pcross::Float64,
     gen1 = Int[]
     gen2 = Int[]
 
-    for i=1:length(gn1)
+    for i = 1:length(gn1)
         push!(gen1, gn1[i])
         push!(gen2, gn2[i])
     end
@@ -656,14 +658,14 @@ function one_point_crossover(n::Int, nd::Int, pcross::Float64,
         ce   = true
         ispl = fortran_int((urand()*n*nd))+1 # choose cutting point
         @printf("%7i\n",ispl)
-        for i=ispl:n*nd
+        for i = ispl:n*nd
             t       = gen2[i]
             gen2[i] = gen1[i]
             gen1[i] = t
         end
     end
 
-    (ce, gen1, gen2)
+    return (ce, gen1, gen2)
 end
 
 # *********************************************************************
@@ -708,7 +710,7 @@ function cross!(n::Int, nd::Int, pcross::Float64,
         end
     end
 
-    ce, gn1, gn2
+    return ce, gn1, gn2
 end
 
 # *********************************************************************
@@ -822,28 +824,30 @@ function adjustment!(ndim::Int, n::Int, np::Int, oldph::Matrix{Float64},
 #                       between best and median individuals
 # =====================================================================
 
-    const rdiflo=0.05
-    const rdifhi=0.25
-    const delta=1.5    
+    const rdiflo = 0.05
+    const rdifhi = 0.25
+    const delta  = 1.5    
     
     if imut == 2 || imut == 5
 #   Adjustment based on fitness differential
-        rdif=abs(fitns[ifit[np]]-fitns[ifit[np/2]])/
-                (fitns[ifit[np]]+fitns[ifit[np/2]])
+        rdif = abs(fitns[ifit[np]]-fitns[ifit[np/2]])/
+                  (fitns[ifit[np]]+fitns[ifit[np/2]])
     elseif imut == 3 || imut == 6 
 #   Adjustment based on normalized metric distance        
-        rdif=0.0
-        for i=1:n
-            rdif=rdif+( oldph[i,ifit[np]]-oldph[i,ifit[np/2]] )^2
+        rdif = 0.0
+        for i = 1:n
+            rdif = rdif+( oldph[i,ifit[np]]-oldph[i,ifit[np/2]] )^2
         end
-        rdif=sqrt(rdif)/float(n)
+        rdif = sqrt(rdif)/float(n)
     end
 
     if rdif < rdiflo 
-        pmut=min(pmutmx, pmut*delta)
+        pmut = min(pmutmx, pmut*delta)
     elseif rdif > rdifhi
-        pmut=max(pmutmn, pmut/delta)
+        pmut = max(pmutmn, pmut/delta)
     end
+
+    return pmut 
 end
 
 # *********************************************************************
