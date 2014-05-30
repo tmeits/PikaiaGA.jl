@@ -807,9 +807,18 @@ function mutate!(n::Int, nd::Int, pmut::Float64, gn::Vector{Int}, imut::Int)
 end
 
 # *********************************************************************
-function adjustment!(ndim::Int, n::Int, np::Int, oldph::Matrix{Float64}, 
-    fitns::Vector{Float64}, ifit::Vector{Int}, pmutmn::Float64, 
-    pmutmx::Float64, pmut::Float64, imut::Int) 
+function adjustment!(
+    ndim::Int,              #  
+    n::Int,                 #
+    np::Int,                #
+    oldph::Matrix{Float64}, #
+    fitns::Vector{Float64}, #
+    ifit::Vector{Int},      #
+    pmutmn::Float64,        #
+    pmutmx::Float64,        #
+    pmut::Float64,          #
+    imut::Int
+    ) 
 # =====================================================================    
 # dynamical adjustment of mutation rate;
 #    imut=2 or imut=5 : adjustment based on fitness differential
@@ -902,13 +911,13 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
     end
 
 #   Local variables
-    gn1   = Array(Int, n*nd)
-    gn2   = Array(Int, n*nd)
-    fitns = Array(Float64, np) 
-    ifit  = Array(Int, np)
-    jfit  = Array(Int, np)
+    gn1    = Array(Int, n*nd)
+    gn2    = Array(Int, n*nd)
+    fitns  = Array(Float64, np) 
+    ifit   = Array(Int, np)
+    jfit   = Array(Int, np)
 
-    ph    = Array(Float64, n, 2)
+    ph     = Array(Float64, n, 2)
     new_ph = Array(Float64, n, np)
  
 #   Make sure locally-dimensioned arrays are big enough
@@ -961,11 +970,11 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 
             if irep == 1
 # full generational replacement: accumulate offspring into new population array              
-                new_ph = genrep(n, np, ip, ph, new_ph)
+                new_ph = generational_replacement(n, np, ip, ph, new_ph)
             else
-                stdrep()
+                steady_state_reproduction!(ff, n, np, irep, ielite, ph, oldphm, fitns, ifit, jfit)
                 newtot = newtot+new
-            end
+            end # insertion/storage completed
 
         end # End of Main Population Loop
 
@@ -977,7 +986,7 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 
 #       adjust mutation rate?
         if imut == 2 || imut == 3 || imut == 5 || imut == 6
-            adjmut()
+            adjmut(NMAX, n, np, oldph, fitns, ifit, pmutmn, pmutmx, pmut, imut)
         end
 
 # printed output 0/1/2=None/Minimal/Verbose (default is 0)

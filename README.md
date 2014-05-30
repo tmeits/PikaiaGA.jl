@@ -21,3 +21,5 @@ http://arxiv.org/pdf/0711.2478.pdf
 
 http://www.ast.cam.ac.uk/~vasily/solber/
 
+https://www.dropbox.com/s/zp7hpb52h3dqsh9/userguide.pdf
+
