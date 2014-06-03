@@ -5,6 +5,10 @@ module TestFunctions
 # Test functions for optimization
 # http://en.wikipedia.org/wiki/Test_functions_for_optimization
 
+export 
+    rastrigin,
+    rastriginsfcn
+
 # *********************************************************************
 function rastriginsfcn(x::Vector{Float64})
 # =====================================================================
@@ -26,10 +30,11 @@ function rastrigin(x::Vector{Float64})
     n = length(x)
 
     fitness = a*n
-    for i=1:n
+    for i = 1:n
         fitness += x[i]^2 - a*cos(2*pi*x[i])
     end
-    fitness
+
+    return fitness
 end
 
 end

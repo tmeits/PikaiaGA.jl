@@ -27,7 +27,7 @@ export
     cross!,
     one_point_crossover,
     mutate!,
-    adjustment!
+    adjust_mutation
    
 global _bestft = 0.0
 global _pmutpv = 0.0
@@ -219,9 +219,19 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
 end
 
 # *********************************************************************
-function report(ivrb::Int, ndim::Int, n::Int, np::Int, nd::Int, 
-    oldph::Matrix{Float64}, fitns::Vector{Float64}, ifit::Vector{Int}, 
-    pmut::Float64, ig::Int, nnew::Int)
+function report(
+    ivrb::Int,              # 
+    ndim::Int,              #
+    n::Int,                 #
+    np::Int,                #
+    nd::Int,                #
+    oldph::Matrix{Float64}, #
+    fitns::Vector{Float64}, #
+    ifit::Vector{Int},      #
+    pmut::Float64,          #
+    ig::Int,                #
+    nnew::Int               #
+    )
 # =====================================================================    
 # Write generation report to standard output
 # =====================================================================
@@ -404,19 +414,21 @@ function select(population_size::Int, jfit::Vector{Int}, fdif::Float64)
     idad  = 0
 
     ps1   = population_size+1 
-    dice  = urand()*population_size*ps1
+    dice  = urand()*population_size*ps1        # faites vos jeux...
     rtfit = 0.0
 
-    for i = 1:population_size
-        rtfit = rtfit+ps1+fdif*(ps1-2*jfit[i])
-        if rtfit >= dice
-            idad = i
+    for i = 1:population_size                  # this is the running sum
+        rtfit = rtfit+ps1+fdif*(ps1-2*jfit[i]) # compute relative
+        if rtfit >= dice                       # fitness on the fly
+            idad = i                           # a parent has been found
             break
         end
     end
 
     return idad
 end #select
+
+# for i=1:10 if i == 5 println(i); break end end
 
 # *********************************************************************
 function select2(population_size::Int, jfit::Vector{Int}, fdif::Float64)
@@ -482,14 +494,14 @@ function init_pop(ff:: Function, n:: Int, np:: Int)
     old_ph = Array(Float64, n, np)
     fitns  = Array(Float64, np)
 
-    for ip = 1:np
-        for k = 1:n
-            old_ph[k, ip] = urand() 
+    for ip = 1:np                      # np individuals in population
+        for k = 1:n                    # n parameters per individual
+            old_ph[k, ip] = urand()    # Random initialization
         end
-        fitns[ip] = ff(old_ph[:, ip])
+        fitns[ip] = ff(old_ph[:, ip])  # Compute fitness
     end
 #   Rank initial population by fitness order
-    (ifit, jfit) = rank_pop(np, fitns)
+    (ifit, jfit) = rank_pop(np, fitns) #
 
     return (old_ph, fitns, ifit, jfit)
 
@@ -497,13 +509,14 @@ end #init_pop
 
 # **********************************************************************
 function new_pop!(
-    ff::Function, 
-    ielite::Int, 
-    ndim::Int, 
-    n::Int, 
-    np::Int, 
-    oldph::Matrix{Float64}, 
-    newph::Matrix{Float64})
+    ff::Function,           #
+    ielite::Int,            #
+    n::Int,                 #
+    np::Int,                #
+
+    oldph::Matrix{Float64}, #
+    newph::Matrix{Float64}  #
+    )
 # ======================================================================    
 # replaces old population by new; recomputes fitnesses & ranks
 # ======================================================================
@@ -512,11 +525,10 @@ function new_pop!(
     newph = copy(oldph)
 
 #   if using elitism, introduce in new population fittest of old
-#   population (if greater than fitness of the individual it is
-#   to replace)
+#   population (if greater than fitness of the individual it is to replace)
     if ielite == 1 && ff(n, newph[1,1]) < fitns[ifit[n]]
         for k = 1:n
-            newph[k, 1] = oldph[k, ifit[np]]
+            newph[k, :] = oldph[k, ifit[np]]
         end
         nnew = nnew - 1
     end
@@ -527,7 +539,7 @@ function new_pop!(
             oldph[k, i] = newph[k, i]
         end
 #       get fitness using caller's fitness function
-        fitns[i] = ff(n,oldph[1,i])        
+        fitns[i] = ff(n, oldph[: , i])        
     end
 #   compute new population fitness rank order
     (ifit, jfit) = rank_pop(np,fitns)
@@ -586,7 +598,8 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
 # ph(k) are x,y coordinates [ 0 < x,y < 1 ]
 # =====================================================================
     
-   ph = Float64[]    
+    ph = Float64[]    
+#    ph = Array(Float64, n)
 
 #   z = 10.^(-nd)
 #   a^(-b) = 1/ ( a^b)
@@ -657,7 +670,7 @@ function one_point_crossover(n::Int, nd::Int, pcross::Float64,
     if urand() < pcross
         ce   = true
         ispl = fortran_int((urand()*n*nd))+1 # choose cutting point
-        @printf("%7i\n",ispl)
+#       @printf("%7i\n",ispl)
         for i = ispl:n*nd
             t       = gen2[i]
             gen2[i] = gen1[i]
@@ -807,8 +820,7 @@ function mutate!(n::Int, nd::Int, pmut::Float64, gn::Vector{Int}, imut::Int)
 end
 
 # *********************************************************************
-function adjustment!(
-    ndim::Int,              #  
+function adjust_mutation(
     n::Int,                 #
     np::Int,                #
     oldph::Matrix{Float64}, #
@@ -817,7 +829,7 @@ function adjustment!(
     pmutmn::Float64,        #
     pmutmx::Float64,        #
     pmut::Float64,          #
-    imut::Int
+    imut::Int               #
     ) 
 # =====================================================================    
 # dynamical adjustment of mutation rate;
@@ -825,13 +837,6 @@ function adjustment!(
 #                       between best and median individuals
 #    imut=3 or imut=6 : adjustment based on metric distance
 #                       between best and median individuals
-
-# dynamical adjustment of mutation rate;
-#    imut=2 or imut=5 : adjustment based on fitness differential
-#                       between best and median individuals
-#    imut=3 or imut=6 : adjustment based on metric distance
-#                       between best and median individuals
-# =====================================================================
 
     const rdiflo = 0.05
     const rdifhi = 0.25
@@ -858,6 +863,9 @@ function adjustment!(
 
     return pmut 
 end
+# http://www.raai.org/resurs/papers/kolomna2009/doklad/Sinyuk_Akopov.doc
+
+
 
 # *********************************************************************
 function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
