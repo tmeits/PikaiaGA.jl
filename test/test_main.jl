@@ -56,7 +56,7 @@ end
 val=rand(); nd=6; (Pikaia.decode(1,nd,Pikaia.encode!(1,nd,[val],[1:nd]))[1], val)
 
 
-@test Pikaia.encode!(1,6,[0.27749011],[1:6]) == [2, 7, 7, 4, 9, 0]
+@test Pikaia.encode(1,6,[0.27749011]) == [2, 7, 7, 4, 9, 0]
 
 function enc_dec(n::Int, d::Int)
     for i =1:n 
@@ -190,4 +190,8 @@ for idx=1:1000
     Pikaia.steady_state_reproduction!(TestFunctions.rastrigin,1,10,2,0,ph2,ph,fitns,ifit,jfit)
     toc()
 end
+
+(ph,fitns,ifit,jfit)=Pikaia.init_pop(TestFunctions.rastrigin,1,10)
+Pikaia.adjust_mutation(1,6, ph, fitns, ifit, 0.15, 0.15, 0.15, 2)
+
 # TODO create function steady_state_reproduction_test

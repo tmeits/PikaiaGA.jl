@@ -22,11 +22,11 @@ export
 
 # GENETICS MODULE
 
-    encode!,
+    encode,
     decode,
-    cross!,
+    cross,
     one_point_crossover,
-    mutate!,
+    mutate,
     adjust_mutation
    
 global _bestft = 0.0
@@ -568,11 +568,13 @@ end
 # using ASCIIPlots
 
 # ********************************************************************
-function encode!(n::Int, nd::Int, ph::Vector{Float64}, gn::Vector{Int})
+function encode(n::Int, nd::Int, ph::Vector{Float64})
 # ====================================================================    
 # encode phenotype parameters into integer genotype
 # ph(k) are x,y coordinates [ 0 < x,y < 1 ]
 # ====================================================================
+
+    gn = Array(Int, nd)
 
     z  = 10.0 ^ nd
     ii = 0
@@ -840,7 +842,9 @@ function adjust_mutation(
 
     const rdiflo = 0.05
     const rdifhi = 0.25
-    const delta  = 1.5    
+    const delta  = 1.5   
+
+    rdif = 0.5
     
     if imut == 2 || imut == 5
 #   Adjustment based on fitness differential
