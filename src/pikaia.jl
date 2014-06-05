@@ -9,7 +9,7 @@ importall Base
 
 export
 
-    pikaia, 
+# SYSTEM FUNCTION
     rqsort,
     init_phenotype,
     init_pop,
@@ -18,8 +18,8 @@ export
     report,
     steady_state_reproduction!,
     select,
-    select2,
-
+    select2
+    
 # GENETICS MODULE
 
     encode,
@@ -28,6 +28,8 @@ export
     one_point_crossover,
     mutate,
     adjust_mutation
+
+# MAIN FUNCTION    
    
 global _bestft = 0.0
 global _pmutpv = 0.0
