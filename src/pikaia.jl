@@ -2,7 +2,10 @@
 # Pikaia is a general purpose function optimization Julia lang module 
 # based on a genetic algorithm.
 # **********************************************************************
+
 # include("pikaia.jl")
+# include("testfunctions.jl")
+
 module Pikaia
 
 importall Base
@@ -27,10 +30,12 @@ export
     cross,
     one_point_crossover,
     mutate,
-    adjust_mutation
+    adjust_mutation,
 
 # MAIN FUNCTION    
-   
+  
+    pikaia
+
 global _bestft = 0.0
 global _pmutpv = 0.0
 global _tprint = false
