@@ -64,7 +64,7 @@ function enc_dec(n::Int, d::Int)
         nd  = d #int(floor(rand()*16))+1
             
         v1  = @sprintf("%12.10f", Pikaia.decode(1, nd,
-            Pikaia.encode!(1, nd, [val], [1:nd]))[1])
+            Pikaia.encode(1, nd, [val]))[1])
         v2  = @sprintf("%12.10f", val)
 
         @test v1[1:(d-2)] == v2[1:(d-2)]
@@ -195,3 +195,13 @@ end
 Pikaia.adjust_mutation(1,6, ph, fitns, ifit, 0.15, 0.15, 0.15, 2)
 
 # TODO create function steady_state_reproduction_test
+
+# http://www.jstatsoft.org/v53/i04/paper
+# Examples
+# Function optimization on one dimension
+
+function f(x)
+    return abs(x) + cos(x)
+end    
+
+

@@ -40,3 +40,25 @@ end
 end
 # https://code.google.com/p/psomatlab/
 # http://jenyay.net/Programming/ParticleSwarm
+
+# Одномерная функция тестирования
+function f(x)
+
+    return (abs(x) + cos(x))
+end
+
+# Min x = -20
+# Max x = 20
+# x = 0 -> 1
+
+function Haupt_and_Haupt_2004(x)
+
+    return (x^2 + x) * cos(x)
+end    
+
+# Min x = -10
+# Max x = 10
+# Fitness function value = 47.70562
+# Solution x =  6.560539
+
+# http://www.jstatsoft.org/v53/i04/paper

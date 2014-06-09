@@ -20,8 +20,9 @@ export
     urand,
     report,
     steady_state_reproduction!,
+    generational_replacement,
     select,
-    select2
+    select2,
     
 # GENETICS MODULE
 
@@ -141,9 +142,9 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
 
 #   Print a header
     if ivrb > 0
-        @printf("******************************************************************\n")
-        @printf("*            Pikaia Genetic Algorithm Report                     *\n")
-        @printf("******************************************************************\n")
+        @printf("+----------------------------------------------------------------+\n")
+        @printf("|            Pikaia Genetic Algorithm Report                     |\n")
+        @printf("+----------------------------------------------------------------+\n")
         @printf("   Number of Generations evolving: %4i\n", ngen)
         @printf("       Individuals per generation: %4i\n", np)
         @printf("    Number of Chromosome segments: %4i\n", n)
@@ -263,6 +264,10 @@ function report(
 #       nint() rounds a real to the nearest result integer
 #       Power of 10 to make integer genotypes for display
         ndpwr = iround(10.^nd)
+
+        @printf("+----------------------------------------------------------------+\n")
+        @printf("|            Pikaia Genetic Algorithm Report                     |\n")
+        @printf("+----------------------------------------------------------------+\n")
 
         @printf(" %6i %6i %10.6f %10.6f %10.6f %10.6f \n",
             ig, nnew, pmut, fitns[ifit[np]], fitns[ifit[np-1]], fitns[ifit[np/2]])
@@ -575,30 +580,34 @@ end
 # using ASCIIPlots
 
 # ********************************************************************
-function encode(n::Int, nd::Int, ph::Vector{Float64})
+function encode(n::Int, nd::Int, 
+    ph::Vector{Float64} # fenotype
+    )
 # ====================================================================    
 # encode phenotype parameters into integer genotype
 # ph(k) are x,y coordinates [ 0 < x,y < 1 ]
 # ====================================================================
 
-    gn = Array(Int, nd)
+    gn = Array(Int, nd)             # genotype
 
     z  = 10.0 ^ nd
     ii = 0
 
-    for i = 1:n
-        ip = int(ph[i]*z)
+    for i = 1:n                      # n parameters to encode
+        ip = int(floor(ph[i]*z))            # convert to integer
 #       @printf("ip = %6i\n", ip)
-        for j = reverse([1:nd])
-            gn[ii+j] = mod(ip, 10)
+        for j = reverse([1:nd])      # nd genes per parameters
+            gn[ii+j] = mod(ip, 10)   # extract gene
             ip = fortran_int((ip/10))
 #           @printf("%6i %6i %9.4f %6i \n", ii, j,  mod(ip, 10), ip)
         end
-        ii = ii+nd
+        ii = ii+nd                   # next block of ng genes
     end
 
     return gn
 end
+
+# http://www.jstatsoft.org/v53/i04/paper
 
 # *********************************************************************
 function decode(n::Int, nd::Int, gn::Vector{Int})
