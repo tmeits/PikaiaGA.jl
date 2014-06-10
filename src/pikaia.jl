@@ -519,6 +519,8 @@ function init_pop(ff:: Function, n:: Int, np:: Int)
 
 end #init_pop
 
+# new_pop!(ff, ielite, n, np, old_ph, fitns)
+
 # **********************************************************************
 function new_pop!(
     ff::Function,           #
@@ -1009,7 +1011,7 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 #       if running full generational replacement: swap populations
         if irep == 1
             (old_ph, fitns, ifit, jfit) = 
-                new_pop(ff, ielite, ndim, n, np, old_ph, fitns)
+                new_pop!(ff, ielite, n, np, old_ph, old_ph)
         end
 
 #       adjust mutation rate?

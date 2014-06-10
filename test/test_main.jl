@@ -200,8 +200,12 @@ Pikaia.adjust_mutation(1,6, ph, fitns, ifit, 0.15, 0.15, 0.15, 2)
 # Examples
 # Function optimization on one dimension
 
-function f(x)
+function ff(x)
     return abs(x) + cos(x)
 end    
 
+test_ctrl = Pikaia.set_ctrl_default(123456)
+Pikaia.pikaia(ff, 1, test_ctrl)
+
+# TODO test new_pop!
 
