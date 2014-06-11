@@ -102,8 +102,9 @@ function set_ctrl_default(seed:: Int)
         ctrl = push!(ctrl, -1.0)
     end
 
-    ctrl[1] = 1
-    ctrl[2] = 50.0
+    ctrl[1]  = 10
+    ctrl[2]  = 50.0
+    ctrl[12] = 1
     
     return ctrl
 end    
@@ -141,9 +142,10 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
     status = 0
 
 #   Print a header
+#   @printf("ivrb= %4i", ivrb)
     if ivrb > 0
         @printf("+----------------------------------------------------------------+\n")
-        @printf("|            Pikaia Genetic Algorithm Report                     |\n")
+        @printf("|            Pikaia Genetic Algorithm Control                    |\n")
         @printf("+----------------------------------------------------------------+\n")
         @printf("   Number of Generations evolving: %4i\n", ngen)
         @printf("       Individuals per generation: %4i\n", np)
@@ -154,7 +156,7 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
         @printf("            Minimum mutation rate: %9.4f\n", pmutmn)
         @printf("            Maximum mutation rate: %9.4f\n", pmutmx)
         @printf("    Relative fitness differential: %9.4f\n", fdif)
-       
+        @printf("\n")       
         if imut == 1
             @printf("                    Mutation Mode: Uniform, Constant Rate\n")
         elseif imut == 2
@@ -496,26 +498,28 @@ function init_phenotype(number_parameters:: Int, population_size:: Int)
     end
 
     return phenotypes
-end
+end #init_phenotype
+
 # *********************************************************************
 function init_pop(ff:: Function, n:: Int, np:: Int)
 # =====================================================================    
 # Compute initial (random but bounded) phenotypes
 # =====================================================================
 
-    old_ph = Array(Float64, n, np)
-    fitns  = Array(Float64, np)
-
-    for ip = 1:np                      # np individuals in population
-        for k = 1:n                    # n parameters per individual
-            old_ph[k, ip] = urand()    # Random initialization
+    phenotypes = Array(Float64, n, np)
+    fitns      = Array(Float64, np)
+ 
+    @printf("n= %6i, np= %6i", n, np)
+    for ip = 1:np                          # np individuals in population
+        for ig = 1:n                       # n parameters per individual
+            phenotypes[ig, ip] = urand()   # Random initialization
         end
-        fitns[ip] = ff(old_ph[:, ip])  # Compute fitness
+        fitns[ip] = ff(phenotypes[:, ip])  # Compute fitness
     end
 #   Rank initial population by fitness order
-    (ifit, jfit) = rank_pop(np, fitns) #
+    (ifit, jfit) = rank_pop(np, fitns)     #
 
-    return (old_ph, fitns, ifit, jfit)
+    return (phenotypes, fitns, ifit, jfit)
 
 end #init_pop
 
@@ -529,7 +533,11 @@ function new_pop!(
     np::Int,                #
 
     oldph::Matrix{Float64}, #
-    newph::Matrix{Float64}  #
+    newph::Matrix{Float64}, #
+
+    ifit::Vector{Int},      #
+    jfit::Vector{Int},      #
+    fitns::Vector{Float64}  #
     )
 # ======================================================================    
 # replaces old population by new; recomputes fitnesses & ranks
@@ -540,7 +548,9 @@ function new_pop!(
 
 #   if using elitism, introduce in new population fittest of old
 #   population (if greater than fitness of the individual it is to replace)
-    if ielite == 1 && ff(n, newph[1,1]) < fitns[ifit[n]]
+    println(np)
+    @printf("new_pop!::fitns[ifit[np]]= %9.4f", fitns[ifit[np]])
+    if ielite == 1 && ff(n, newph[1,1]) < fitns[ifit[np]]
         for k = 1:n
             newph[k, :] = oldph[k, ifit[np]]
         end
@@ -900,8 +910,9 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 # Version 0.0.1   [ 2014 February 21 ]
 
 #   Output:
-    x       = rand(n); 
-    f       = 0.0; 
+    x       = rand(n)
+    x       = Array(Float64, n)
+    f       = 0.0
     status  = 0
 #
 #    o Array  x[1:n]  is the "fittest" (optimal) solution found,
@@ -1011,12 +1022,12 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 #       if running full generational replacement: swap populations
         if irep == 1
             (old_ph, fitns, ifit, jfit) = 
-                new_pop!(ff, ielite, n, np, old_ph, old_ph)
+                new_pop!(ff, ielite, n, np, old_ph, old_ph, ifit,jfit,fitns)
         end
 
 #       adjust mutation rate?
         if imut == 2 || imut == 3 || imut == 5 || imut == 6
-            adjmut(NMAX, n, np, oldph, fitns, ifit, pmutmn, pmutmx, pmut, imut)
+            adjust_mutation(n, np, oldph, fitns, ifit, pmutmn, pmutmx, pmut, imut)
         end
 
 # printed output 0/1/2=None/Minimal/Verbose (default is 0)

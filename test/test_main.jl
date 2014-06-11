@@ -201,8 +201,11 @@ Pikaia.adjust_mutation(1,6, ph, fitns, ifit, 0.15, 0.15, 0.15, 2)
 # Function optimization on one dimension
 
 function ff(x)
-    return abs(x) + cos(x)
-end    
+    return abs(x[1]) + cos(x[1])
+end   
+
+using ASCIIPlots
+lineplot([-10:10], map(ff,[-10:10]))
 
 test_ctrl = Pikaia.set_ctrl_default(123456)
 Pikaia.pikaia(ff, 1, test_ctrl)
