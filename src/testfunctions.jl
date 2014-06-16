@@ -53,6 +53,9 @@ end
 
 function Haupt_and_Haupt_2004(x)
 
+#rescale input variables:
+     
+
     return (x^2 + x) * cos(x)
 end    
 
@@ -62,3 +65,28 @@ end
 # Solution x =  6.560539
 
 # http://www.jstatsoft.org/v53/i04/paper
+
+
+# *********************************************************************
+function twod(x)
+# =====================================================================
+# Compute sample fitness function (2-d landscape)
+# =====================================================================
+
+#     Constant
+#    const pi     =
+    const sigma2 = 0.15
+    const nn     = 9
+
+    rr = 0.0         
+
+    if x[1] > 1.0 || x[2] > 1.0 
+        error("stop")
+    end
+
+    rr = sqrt( (0.5-x[1]) ^ 2 + (0.5-x[2]) ^ 2 )
+    
+    return cos(rr*nn*pi) ^ 2 * exp((-rr ^ 2) / sigma2)
+end
+
+

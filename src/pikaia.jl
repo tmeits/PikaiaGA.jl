@@ -22,7 +22,7 @@ export
     steady_state_reproduction!,
     generational_replacement,
     select,
-    select2,
+    select_two,
     
 # GENETICS MODULE
 
@@ -102,8 +102,8 @@ function set_ctrl_default(seed:: Int)
         ctrl = push!(ctrl, -1.0)
     end
 
-    ctrl[1]  = 10
-    ctrl[2]  = 50.0
+    ctrl[1]  = 50
+    ctrl[2]  = 100
     ctrl[12] = 1
     
     return ctrl
@@ -445,7 +445,10 @@ end #select
 # for i=1:10 if i == 5 println(i); break end end
 
 # *********************************************************************
-function select2(population_size::Int, jfit::Vector{Int}, fdif::Float64)
+function select_two(population_size::Int, jfit::Vector{Int}, fdif::Float64)
+# =====================================================================
+#
+# =====================================================================
 
     ip1 = -1
     ip2 = -1
@@ -509,7 +512,7 @@ function init_pop(ff:: Function, n:: Int, np:: Int)
     phenotypes = Array(Float64, n, np)
     fitns      = Array(Float64, np)
  
-    @printf("n= %6i, np= %6i", n, np)
+#   @printf("n= %6i, np= %6i", n, np)
     for ip = 1:np                          # np individuals in population
         for ig = 1:n                       # n parameters per individual
             phenotypes[ig, ip] = urand()   # Random initialization
@@ -548,23 +551,26 @@ function new_pop!(
 
 #   if using elitism, introduce in new population fittest of old
 #   population (if greater than fitness of the individual it is to replace)
-    println(np)
-    @printf("new_pop!::fitns[ifit[np]]= %9.4f", fitns[ifit[np]])
-    if ielite == 1 && ff(n, newph[1,1]) < fitns[ifit[np]]
+#   println(np)
+#   @printf("new_pop!::fitns[ifit[np]]= %9.4f\n", fitns[ifit[np]])
+    # !!!!!!!
+    if ielite == 1 && ff(newph[1,1]) < fitns[ifit[np]]
         for k = 1:n
             newph[k, :] = oldph[k, ifit[np]]
         end
-        nnew = nnew - 1
+        nnew = nnew-1
     end
 
 #   replace population
     for i = 1:np
-        for l = 1:n
+        for k = 1:n
             oldph[k, i] = newph[k, i]
         end
+
 #       get fitness using caller's fitness function
-        fitns[i] = ff(n, oldph[: , i])        
+        fitns[i] = ff(oldph[: , i])        
     end
+
 #   compute new population fitness rank order
     (ifit, jfit) = rank_pop(np,fitns)
 
@@ -986,15 +992,17 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 #           selection strategies            
 #           1. pick two parents
             ip1 = select(np, jfit, fdif)
+            ip2 = ip1
             while true
-                ip2 = select(np, jfit, fdif)
+                global ip2 = 
+                    select(np, jfit, fdif)
                 if ip1 != ip2
                     break
                 end
             end
 #           2. encode parent phenotypes
-            encode!(n, nd, old_ph[:, ip1], gn1)
-            encode!(n, nd, old_ph[:, ip2], gn2)
+            gn1=encode(n, nd, old_ph[:, ip1])
+            gn2=encode(n, nd, old_ph[:, ip2])
 
 #           3. breed
             cross!(n, nd, pcross, gn1, gn2)
@@ -1016,8 +1024,9 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
                 steady_state_reproduction!(ff, n, np, irep, ielite, ph, oldphm, fitns, ifit, jfit)
                 newtot = newtot+new
             end # insertion/storage completed
-
+            # ==============================
         end # End of Main Population Loop
+            # ==============================
 
 #       if running full generational replacement: swap populations
         if irep == 1
@@ -1027,7 +1036,7 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 
 #       adjust mutation rate?
         if imut == 2 || imut == 3 || imut == 5 || imut == 6
-            adjust_mutation(n, np, oldph, fitns, ifit, pmutmn, pmutmx, pmut, imut)
+            adjust_mutation(n, np, old_ph, fitns, ifit, pmutmn, pmutmx, pmut, imut)
         end
 
 # printed output 0/1/2=None/Minimal/Verbose (default is 0)
@@ -1036,14 +1045,19 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
             report(ivrb, NMAX, n, np, nd, old_ph, fitns, ifit, pmut, ig, newtot)
         end
 
+        # ==============================
     end # End of Main Generation Loop 
+        # ==============================
 
 #   Return best phenotype and its fitness
     for k = 1:n
-        x[k] = old_ph[k, ifits[np]]
+        x[k] = old_ph[k, ifit[np]]
     end
     
     f = fitns[ifit[np]]
+
+# Print in tuple    
+    @printf(" \n")
 
 # Return in typle
     return (x, f, status)

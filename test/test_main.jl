@@ -200,12 +200,56 @@ Pikaia.adjust_mutation(1,6, ph, fitns, ifit, 0.15, 0.15, 0.15, 2)
 # Examples
 # Function optimization on one dimension
 
+
+function rescaling(value::Float64, smin::Float64, smax::Float64, dmin::Float64, dmax::Float64)
+# To transform number from one range to another.
+    return  ((value-smin) / (smax-smin)) * (dmax-dmin) + dmin
+
+end #function rescaling
+
+function test_rescaling()
+
+end
+
+s2=rescaling(0.45,0.,1.,5.,10.)  
+rescaling(s2, 5.,10., 0., 1.)
+
 function ff(x)
+
+# appropriately rescaling x
+
     return abs(x[1]) + cos(x[1])
 end   
 
 using ASCIIPlots
 lineplot([-10:10], map(ff,[-10:10]))
+
+#	-------------------------------------------------------------
+#	|\                                                          /| 9.16
+#	|                                                            |
+#	|                                                            |
+#	|  \                                                     /   |
+#	|     -  \                                         -  /      |
+#	|                                                            |
+#	|           \                                   /            |
+#	|                                                            |
+#	|                                                            |
+#	|                                                            |
+#	|              \                             /               |
+#	|                                                            |
+#	|                                                            |
+#	|                                                            |
+#	|                 \                       /                  |
+#	|                                                            |
+#	|                                                            |
+#	|                    \                 /                     |
+#	|                       -  \     -  /                        |
+#	|                             /                              | 1.00
+#	-------------------------------------------------------------
+#	-10.00                                                    10.00
+
+
+for i=-100:100 @printf("i= %9.4f  ff= %9.4f\n",i,ff(i)) end 
 
 test_ctrl = Pikaia.set_ctrl_default(123456)
 Pikaia.pikaia(ff, 1, test_ctrl)
