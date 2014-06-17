@@ -201,13 +201,8 @@ Pikaia.adjust_mutation(1,6, ph, fitns, ifit, 0.15, 0.15, 0.15, 2)
 # Function optimization on one dimension
 
 
-function rescaling(value::Float64, smin::Float64, smax::Float64, dmin::Float64, dmax::Float64)
-# To transform number from one range to another.
-    return  ((value-smin) / (smax-smin)) * (dmax-dmin) + dmin
-
-end #function rescaling
-
 function test_rescaling()
+
 
 end
 
@@ -216,7 +211,8 @@ rescaling(s2, 5.,10., 0., 1.)
 
 function ff(x)
 
-# appropriately rescaling x
+#   appropriately rescaling x
+    rx = Pikaia.rescaling(x,0.,1., -10., 10.) 
 
     return abs(x[1]) + cos(x[1])
 end   

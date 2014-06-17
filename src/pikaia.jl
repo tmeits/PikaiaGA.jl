@@ -12,19 +12,30 @@ importall Base
 
 export
 
-# SYSTEM FUNCTION
+# LYBRARY FUNCTION
+
     rqsort,
+    urand,
+    rescaling,
+    dbg,
+    fortran_int,
+    get_random_int,
+
+
+# SYSTEM FUNCTION
+    
+    set_ctrl_default,
+    setctl,
     init_phenotype,
     init_pop,
-    new_pop!,
-    urand,
-    report,
+    new_pop!, 
     steady_state_reproduction!,
     generational_replacement,
     select,
     select_two,
+    report,
     
-# GENETICS MODULE
+# GENETICS OPERATORS
 
     encode,
     decode,
@@ -51,6 +62,13 @@ function dbg(str::String)
     true
 end    
 
+function rescaling(value::Float64, smin::Float64, smax::Float64, dmin::Float64, dmax::Float64)
+# To transform number from one range to another.
+    return  ((value-smin) / (smax-smin)) * (dmax-dmin) + dmin
+
+end #function rescaling
+
+
 # *********************************************************************
 function fortran_int(var:: Float64)
 # =====================================================================
@@ -61,6 +79,35 @@ function fortran_int(var:: Float64)
 
     return int_var
 end    
+
+# *********************************************************************
+function get_random_int(rand_num_min::Int, rand_num_max::Int)
+# =====================================================================    
+# Returns a random integer between min and max
+# =====================================================================
+
+    rand_int = (fortran_int((rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min))
+
+    rand_int
+end
+
+# *********************************************************************
+function get_random_int(num::Int, rand_num_min::Int, rand_num_max::Int)
+# =====================================================================    
+# Returns a vector casual whole within a minimum and a maximum
+# =====================================================================
+
+    rand_int = Int[]
+
+    for i=1:num
+        push!(rand_int, 
+            (fortran_int((rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min)))
+    end
+
+    rand_int
+end
+
+
 
 # *********************************************************************    
 function rqsort(n:: Int, a:: Vector{Float64})
@@ -655,32 +702,6 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
     return ph
 end
 
-# *********************************************************************
-function get_random_int(rand_num_min::Int, rand_num_max::Int)
-# =====================================================================    
-# Returns a random integer between min and max
-# =====================================================================
-
-    rand_int = (fortran_int((rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min))
-
-    rand_int
-end
-
-# *********************************************************************
-function get_random_int(num::Int, rand_num_min::Int, rand_num_max::Int)
-# =====================================================================    
-# Returns a vector casual whole within a minimum and a maximum
-# =====================================================================
-
-    rand_int = Int[]
-
-    for i=1:num
-        push!(rand_int, 
-            (fortran_int((rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min)))
-    end
-
-    rand_int
-end
 
 
 # http://mathmod.aspu.ru/images/File/ebooks/GAfinal.pdf 
