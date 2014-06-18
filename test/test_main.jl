@@ -203,18 +203,45 @@ Pikaia.adjust_mutation(1,6, ph, fitns, ifit, 0.15, 0.15, 0.15, 2)
 
 function test_rescaling()
 
+    tr = true
 
+    for i = 1:100
+        min_max = sort(Pikaia.get_random_int(2, -100 ,100)*1.)
+        rnd     = rand()
+        res     = Pikaia.rescaling(rnd ,0., 1., min_max[1], min_max[2])
+        rnd_    = Pikaia.rescaling(res ,min_max[1], min_max[2], 0., 1.)
+        @printf("%9.4f == %9.4f\n", rnd, rnd_)
+        if strip(@sprintf("%9.4f", rnd)) != strip(@sprintf("%9.4f", rnd_))
+            tr = false
+        end
+    end
+
+    tr
 end
 
-s2=rescaling(0.45,0.,1.,5.,10.)  
-rescaling(s2, 5.,10., 0., 1.)
+rnd  = rand()
+rmin = -10.
+rmax =  -5.
+s2  = Pikaia.rescaling(rnd,0.,1.,rmin, rmax)  
+Pikaia.rescaling(s2, rmin, rmax, 0., 1.)
 
-function ff(x)
+function ff_easy(x)
 
+    return abs(x[1]) + cos(x[1])
+end  
+
+function ff_rescaling(x)
 #   appropriately rescaling x
     rx = Pikaia.rescaling(x,0.,1., -10., 10.) 
 
-    return abs(x[1]) + cos(x[1])
+    return abs(rx[1]) + cos(rx[1])
+end   
+
+function ff_rescaling(x, rmin::Float64, rmax::Float64)
+#   appropriately rescaling x
+    rx = Pikaia.rescaling(x,0.,1., rmin, rmax) 
+
+    return abs(rx[1]) + cos(rx[1])
 end   
 
 using ASCIIPlots
