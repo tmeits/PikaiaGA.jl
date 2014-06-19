@@ -205,25 +205,29 @@ function test_rescaling()
 
     tr = true
 
-    for i = 1:100
+    for i = 1:100000
         min_max = sort(Pikaia.get_random_int(2, -100 ,100)*1.)
+        while true
+            if  min_max[1] == min_max[2]
+                min_max = sort(Pikaia.get_random_int(2, -100 ,100)*1.)
+            else
+                break
+            end
+        end
         rnd     = rand()
         res     = Pikaia.rescaling(rnd ,0., 1., min_max[1], min_max[2])
         rnd_    = Pikaia.rescaling(res ,min_max[1], min_max[2], 0., 1.)
-        @printf("%9.4f == %9.4f\n", rnd, rnd_)
+        #@printf("min= %9.4f max= %9.4f res= %9.4f rnd = %9.4f == %9.4f\n",
+        #    min_max[1], min_max[2], res, rnd, rnd_)
         if strip(@sprintf("%9.4f", rnd)) != strip(@sprintf("%9.4f", rnd_))
             tr = false
         end
     end
 
-    tr
+    return tr
 end
 
-rnd  = rand()
-rmin = -10.
-rmax =  -5.
-s2  = Pikaia.rescaling(rnd,0.,1.,rmin, rmax)  
-Pikaia.rescaling(s2, rmin, rmax, 0., 1.)
+@test test_rescaling()
 
 function ff_easy(x)
 
@@ -232,9 +236,10 @@ end
 
 function ff_rescaling(x)
 #   appropriately rescaling x
-    rx = Pikaia.rescaling(x,0.,1., -10., 10.) 
-
-    return abs(rx[1]) + cos(rx[1])
+    sx = x[1]
+    rx = Pikaia.rescaling(sx,0.,1., -10., 10.) 
+#   search min function
+    return -1.0*(abs(rx) + cos(rx))
 end   
 
 function ff_rescaling(x, rmin::Float64, rmax::Float64)
@@ -246,6 +251,36 @@ end
 
 using ASCIIPlots
 lineplot([-10:10], map(ff,[-10:10]))
+scatterplot([-10:10], map(ff,[-10:10]))
+
+julia> scatterplot([-10:10], map(ff_easy,[-10:10]))
+
+#	-------------------------------------------------------------
+#	|^                                                          ^| 9.16
+#	|                                                            |
+#	|                                                            |
+#	|  ^                                                     ^   |
+#	|     ^  ^                                         ^  ^      |
+#	|                                                            |
+#	|           ^                                   ^            |
+#	|                                                            |
+#	|                                                            |
+#	|                                                            |
+#	|              ^                             ^               |
+#	|                                                            |
+#	|                                                            |
+#	|                                                            |
+#	|                 ^                       ^                  |
+#	|                                                            |
+#	|                                                            |
+#	|                    ^                 ^                     |
+#	|                       ^  ^     ^  ^                        |
+#	|                             ^                              | 1.00
+#	-------------------------------------------------------------
+#	-10.00                                                    10.00
+
+
+
 
 #	-------------------------------------------------------------
 #	|\                                                          /| 9.16
@@ -275,7 +310,7 @@ lineplot([-10:10], map(ff,[-10:10]))
 for i=-100:100 @printf("i= %9.4f  ff= %9.4f\n",i,ff(i)) end 
 
 test_ctrl = Pikaia.set_ctrl_default(123456)
-Pikaia.pikaia(ff, 1, test_ctrl)
+Pikaia.pikaia(ff_rescaling, 1, test_ctrl)
 
-# TODO test new_pop!
+# TODO Iter = 1 | Mean = -10.30292 | Best = -1.106484
 

@@ -149,9 +149,9 @@ function set_ctrl_default(seed:: Int)
         ctrl = push!(ctrl, -1.0)
     end
 
-    ctrl[1]  = 50
-    ctrl[2]  = 100
-    ctrl[12] = 1
+    ctrl[1]  = 250
+    ctrl[2]  = 490
+    ctrl[12] = 2
     
     return ctrl
 end    
@@ -1083,6 +1083,14 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 # Return in typle
     return (x, f, status)
 end # pikaia
+
+# *******************************************************************
+function result_rescaling()
+# ===================================================================
+#
+# ===================================================================
+
+end    
 
 end # Pikaia
 #
