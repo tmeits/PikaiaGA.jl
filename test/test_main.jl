@@ -237,7 +237,7 @@ end
 function ff_rescaling(x)
 #   appropriately rescaling x
     sx = x[1]
-    rx = Pikaia.rescaling(sx,0.,1., -10., 10.) 
+    rx = Pikaia.rescaling(sx,0.,1., -20., 20.) 
 #   search min function
     return -1.0*(abs(rx) + cos(rx))
 end   
@@ -250,67 +250,179 @@ function ff_rescaling(x, rmin::Float64, rmax::Float64)
 end   
 
 using ASCIIPlots
-lineplot([-10:10], map(ff,[-10:10]))
-scatterplot([-10:10], map(ff,[-10:10]))
+lineplot([-20:20], map(ff_easy,[-20:20]))
+scatterplot([-20:20], map(ff_easy,[-20:20]))
 
-julia> scatterplot([-10:10], map(ff_easy,[-10:10]))
-
-#	-------------------------------------------------------------
-#	|^                                                          ^| 9.16
-#	|                                                            |
-#	|                                                            |
-#	|  ^                                                     ^   |
-#	|     ^  ^                                         ^  ^      |
-#	|                                                            |
-#	|           ^                                   ^            |
-#	|                                                            |
-#	|                                                            |
-#	|                                                            |
-#	|              ^                             ^               |
-#	|                                                            |
-#	|                                                            |
-#	|                                                            |
-#	|                 ^                       ^                  |
-#	|                                                            |
-#	|                                                            |
-#	|                    ^                 ^                     |
-#	|                       ^  ^     ^  ^                        |
-#	|                             ^                              | 1.00
-#	-------------------------------------------------------------
-#	-10.00                                                    10.00
-
+#=
+	-------------------------------------------------------------
+	|\                                                          /| 20.41
+	| \                                                       /  |
+	|  \                                                     /   |
+	|                                                            |
+	|    \                                                 /     |
+	|                                                            |
+	|     \                                               /      |
+	|       -- \                                     - -/        |
+	|           \                                   /            |
+	|                                                            |
+	|             \                               /              |
+	|                                                            |
+	|              \                             /               |
+	|                -- \                   - -/                 |
+	|                    \                 /                     |
+	|                      \             /                       |
+	|                                                            |
+	|                       \           /                        |
+	|                                                            |
+	|                         \- \/- //                          | 1.00
+	-------------------------------------------------------------
+	-20.00                                                    20.00
 
 
+	-------------------------------------------------------------
+	|^                                                          ^| 20.41
+	| ^                                                       ^  |
+	|  ^                                                     ^   |
+	|                                                            |
+	|    ^                                                 ^     |
+	|                                                            |
+	|     ^                                               ^      |
+	|       ^^ ^                                     ^ ^^        |
+	|           ^                                   ^            |
+	|                                                            |
+	|             ^                               ^              |
+	|                                                            |
+	|              ^                             ^               |
+	|                ^^ ^                   ^ ^^                 |
+	|                    ^                 ^                     |
+	|                      ^             ^                       |
+	|                                                            |
+	|                       ^           ^                        |
+	|                                                            |
+	|                         ^^ ^^^ ^^                          | 1.00
+	-------------------------------------------------------------
+	-20.00                                                    20.00
 
-#	-------------------------------------------------------------
-#	|\                                                          /| 9.16
-#	|                                                            |
-#	|                                                            |
-#	|  \                                                     /   |
-#	|     -  \                                         -  /      |
-#	|                                                            |
-#	|           \                                   /            |
-#	|                                                            |
-#	|                                                            |
-#	|                                                            |
-#	|              \                             /               |
-#	|                                                            |
-#	|                                                            |
-#	|                                                            |
-#	|                 \                       /                  |
-#	|                                                            |
-#	|                                                            |
-#	|                    \                 /                     |
-#	|                       -  \     -  /                        |
-#	|                             /                              | 1.00
-#	-------------------------------------------------------------
-#	-10.00                                                    10.00
+=#
 
-
-for i=-100:100 @printf("i= %9.4f  ff= %9.4f\n",i,ff(i)) end 
+for i=-100:100 @printf("i= %9.4f  ff= %9.4f\n",i,ff_easy(i)) end 
 
 test_ctrl = Pikaia.set_ctrl_default(123456)
-Pikaia.pikaia(ff_rescaling, 1, test_ctrl)
+tic(); r=Pikaia.pikaia(ff_rescaling, 1, test_ctrl) ; toc();r
+Pikaia.result_rescaling(r, 0.,1., -20., 20.)
+
 
 # TODO Iter = 1 | Mean = -10.30292 | Best = -1.106484
+ @profile Pikaia.pikaia(ff_rescaling, 1, test_ctrl)
+ Profile.print()
+#=
+311 client.jl; _start; line: 429
+        311 client.jl; run_repl; line: 186
+           311 client.jl; eval_user_input; line: 109
+              311 profile.jl; anonymous; line: 14
+                 34 ...l/src/pikaia.jl; pikaia; line: 1015
+                  2  ...l/src/pikaia.jl; select; line: 478
+                  2  ...l/src/pikaia.jl; select; line: 481
+                  29 ...l/src/pikaia.jl; select; line: 482
+                 24 ...l/src/pikaia.jl; pikaia; line: 1018
+                  1  ...l/src/pikaia.jl; select; line: 478
+                  4  ...l/src/pikaia.jl; select; line: 481
+                  19 ...l/src/pikaia.jl; select; line: 482
+                 91 ...l/src/pikaia.jl; pikaia; line: 1025
+                  3  ...l/src/pikaia.jl; encode; line: 656
+                  9  ...l/src/pikaia.jl; encode; line: 658
+                  1  ...l/src/pikaia.jl; encode; line: 662
+                  4  ...l/src/pikaia.jl; encode; line: 664
+                   2 array.jl; reverse; line: 1148
+                   1 range.jl; vcat; line: 343
+                   1 range.jl; vcat; line: 346
+                  1  ...l/src/pikaia.jl; encode; line: 665
+                  2  ...l/src/pikaia.jl; encode; line: 666
+                   2 ...l/src/pikaia.jl; fortran_int; line: 78
+                  1  ...l/src/pikaia.jl; fortran_int; line: 78
+                  1  array.jl; getindex; line: 311
+                   1 abstractarray.jl; checkbounds; line: 95
+                    1 abstractarray.jl; checkbounds; line: 74
+                  69 array.jl; getindex; line: 312
+                 49 ...l/src/pikaia.jl; pikaia; line: 1026
+                  7  ...l/src/pikaia.jl; encode; line: 656
+                  4  ...l/src/pikaia.jl; encode; line: 658
+                  1  ...l/src/pikaia.jl; encode; line: 662
+                  22 ...l/src/pikaia.jl; encode; line: 664
+                   6  array.jl; reverse; line: 1148
+                   15 range.jl; vcat; line: 343
+                  1  ...l/src/pikaia.jl; encode; line: 665
+                  6  ...l/src/pikaia.jl; encode; line: 666
+                   2 ...l/src/pikaia.jl; fortran_int; line: 78
+                  4  array.jl; getindex; line: 311
+                   4 abstractarray.jl; checkbounds; line: 95
+                    3 abstractarray.jl; checkbounds; line: 74
+                    1 range.jl; maximum; line: 101
+                  4  array.jl; getindex; line: 312
+                 6  ...l/src/pikaia.jl; pikaia; line: 1029
+                  1 ...l/src/pikaia.jl; cross!; line: 761
+                   1 ...l/src/pikaia.jl; fortran_int; line: 78
+                  2 ...l/src/pikaia.jl; cross!; line: 776
+                   1 range.jl; vcat; line: 343
+                  1 ...l/src/pikaia.jl; cross!; line: 777
+                  1 ...l/src/pikaia.jl; cross!; line: 783
+                  1 ...l/src/pikaia.jl; dbg; line: 56
+                 1  ...l/src/pikaia.jl; pikaia; line: 1030
+                  1 ...l/src/pikaia.jl; mutate!; line: 870
+                 2  ...l/src/pikaia.jl; pikaia; line: 1031
+                  2 ...l/src/pikaia.jl; mutate!; line: 870
+                 22 ...l/src/pikaia.jl; pikaia; line: 1034
+                  2  ...l/src/pikaia.jl; decode; line: 684
+                   2 array.jl; getindex; line: 151
+                  11 ...l/src/pikaia.jl; decode; line: 689
+                  1  ...l/src/pikaia.jl; decode; line: 695
+                  4  ...l/src/pikaia.jl; decode; line: 698
+                   3 array.jl; push!; line: 660
+                   1 array.jl; push!; line: 661
+                  1  array.jl; setindex!; line: 495
+                  3  array.jl; setindex!; line: 496
+                   3 abstractarray.jl; checkbounds; line: 95
+                    3 abstractarray.jl; checkbounds; line: 74
+                 20 ...l/src/pikaia.jl; pikaia; line: 1035
+                  3 ...l/src/pikaia.jl; decode; line: 684
+                   3 array.jl; getindex; line: 151
+                  9 ...l/src/pikaia.jl; decode; line: 689
+                  2 ...l/src/pikaia.jl; decode; line: 698
+                   2 array.jl; push!; line: 660
+                  6 array.jl; setindex!; line: 496
+                   6 abstractarray.jl; checkbounds; line: 95
+                    6 abstractarray.jl; checkbounds; line: 74
+                 24 ...l/src/pikaia.jl; pikaia; line: 1043
+                  24 ...l/src/pikaia.jl; generational_replacement; line: 349
+                   17 array.jl; copy!; line: 51
+                    17 array.jl; unsafe_copy!; line: 38
+                     17 array.jl; unsafe_copy!; line: 31
+                 36 ...l/src/pikaia.jl; pikaia; line: 1054
+                  1  ...l/src/pikaia.jl; new_pop!; line: 597
+                  1  ...l/src/pikaia.jl; new_pop!; line: 612
+                  32 ...l/src/pikaia.jl; new_pop!; line: 618
+                   15 array.jl; getindex; line: 311
+                    14 abstractarray.jl; checkbounds; line: 95
+                     13 abstractarray.jl; checkbounds; line: 74
+                       1  int.jl; <; line: 228
+                   7  array.jl; getindex; line: 312
+                     1 array.jl; setindex!; line: 412
+                     1 none; ff_rescaling; line: 3
+                     1 none; ff_rescaling; line: 6
+                  2  ...l/src/pikaia.jl; new_pop!; line: 622
+                   2 ...l/src/pikaia.jl; rank_pop; line: 526
+                      2 sort.jl; sort!; line: 444
+                       1 sort.jl; fpsort!; line: 426
+                        1 sort.jl; nans2right!; line: 403
+                       1 sort.jl; fpsort!; line: 438
+                        1 sort.jl; sort!; line: 281
+                 1  ...l/src/pikaia.jl; pikaia; line: 1066
+                    1 ...l/src/pikaia.jl; report; line: 141
+                       1 stream.jl; write; line: 679
+=#
+Profile.print(format=:flat)
+
+test_ctrl = Pikaia.set_ctrl_default(sort(123456))
+Pikaia.pikaia(ff_rescaling, 1, test_ctrl)
+
 

@@ -149,9 +149,9 @@ function set_ctrl_default(seed:: Int)
         ctrl = push!(ctrl, -1.0)
     end
 
-    ctrl[1]  = 250
-    ctrl[2]  = 490
-    ctrl[12] = 2
+    ctrl[1]  = 100
+    ctrl[2]  = 500
+    ctrl[12] = 3
     
     return ctrl
 end    
@@ -314,7 +314,7 @@ function report(
 #       Power of 10 to make integer genotypes for display
         ndpwr = iround(10.^nd)
 
-        @printf("+----------------------------------------------------------------+\n")
+        @printf("\n+----------------------------------------------------------------+\n")
         @printf("|            Pikaia Genetic Algorithm Report                     |\n")
         @printf("+----------------------------------------------------------------+\n")
 
@@ -1085,11 +1085,16 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 end # pikaia
 
 # *******************************************************************
-function result_rescaling()
+function result_rescaling(x, smin::Float64, smax::Float64, dmin::Float64, dmax::Float64)
 # ===================================================================
-#
+# While one measurement
 # ===================================================================
-
+    xs = copy(x[1])
+    for i=1:length(xs)
+        xs = rescaling(xs[1], smin, smax, dmin, dmax)
+    end        
+    
+    (xs, abs(x[2]), x[3])
 end    
 
 end # Pikaia
