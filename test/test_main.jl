@@ -425,4 +425,71 @@ Profile.print(format=:flat)
 test_ctrl = Pikaia.set_ctrl_default(sort(123456))
 Pikaia.pikaia(ff_rescaling, 1, test_ctrl)
 
+function rastrigin_rescaling(x)
+#   appropriately rescaling x
+    sx = x[1]
+    rx = Pikaia.rescaling(sx,0.,1., -5., 5.) 
+#   search min function
+    return -1.*TestFunctions.rastrigin([rx])
+end # rastrigin_rescaling
+
+scatterplot([-5.:5.], map(rastrigin_rescaling, [-5.:5.]))
+
+#=
+	-------------------------------------------------------------
+	|^                                                           | 3025.00
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|     ^                                                     ^|
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|           ^                                         ^      |
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|                 ^                             ^            |
+	|                                                            |
+	|                       ^                 ^                  |
+	|                             ^     ^                        | 25.00
+	-------------------------------------------------------------
+	-5.00                                                    5.00
+
+	-------------------------------------------------------------
+	|                             ^     ^                        | -25.00
+	|                                                            |
+	|                       ^                 ^                  |
+	|                                                            |
+	|                 ^                             ^            |
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|           ^                                         ^      |
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|     ^                                                     ^|
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|                                                            |
+	|^                                                           | -3025.00
+	-------------------------------------------------------------
+	-5.00                                                    5.00
+
+    
+=#
+
+test_ctrl = Pikaia.set_ctrl_default(423456)
+res=Pikaia.pikaia(rastrigin_rescaling, 1, test_ctrl)
+Pikaia.result_rescaling(res, 0.,1.,-5.,5.)
+
+# (-0.012221665193063558,0.02961916178932178,0)
 
