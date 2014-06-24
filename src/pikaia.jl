@@ -48,6 +48,8 @@ export
   
     pikaia
 
+# GLOBAL SECTION
+
 global _bestft = 0.0
 global _pmutpv = 0.0
 global _tprint = false
@@ -68,6 +70,19 @@ function rescaling(value::Float64, smin::Float64, smax::Float64, dmin::Float64, 
 
 end #function rescaling
 
+# *******************************************************************
+function result_rescaling(x, smin::Float64, smax::Float64, dmin::Float64, dmax::Float64)
+# ===================================================================
+# While one measurement
+# ===================================================================
+    xs = copy(x[1])
+    for i=1:length(xs)
+        xs = rescaling(xs[1], smin, smax, dmin, dmax)
+    end        
+    
+    (xs, abs(x[2]), x[3])
+end    
+    
 
 # *********************************************************************
 function fortran_int(var:: Float64)
@@ -174,18 +189,18 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
             ctrl[i] = DEFAULT[i]
         end
     end
-    np     = int(ctrl[1])
-    ngen   = int(ctrl[2])
-    nd     = int(ctrl[3])
-    pcross = ctrl[4]
-    imut   = int(ctrl[5])
-    pmut   = ctrl[6]
-    pmutmn = ctrl[7]
-    pmutmx = ctrl[8]
-    fdif   = ctrl[9]
-    irep   = int(ctrl[10])
-    ielite = int(ctrl[11])
-    ivrb   = int(ctrl[12])
+    np     = int(ctrl[1])  #
+    ngen   = int(ctrl[2])  #
+    nd     = int(ctrl[3])  #
+    pcross = ctrl[4]       #
+    imut   = int(ctrl[5])  #
+    pmut   = ctrl[6]       #
+    pmutmn = ctrl[7]       #
+    pmutmx = ctrl[8]       #
+    fdif   = ctrl[9]       #
+    irep   = int(ctrl[10]) #
+    ielite = int(ctrl[11]) #
+    ivrb   = int(ctrl[12]) #
     status = 0
 
 #   Print a header
@@ -285,7 +300,7 @@ function report(
     oldph::Matrix{Float64}, #
     fitns::Vector{Float64}, #
     ifit::Vector{Int},      #
-    pmut::Float64,          #
+    pmut::Float64,          # probability mutation rate 
     ig::Int,                #
     nnew::Int               #
     )
@@ -310,9 +325,9 @@ function report(
 
     if rpt == true || ivrb > 2
 
-#       nint() rounds a real to the nearest result integer
+#       FORTRAN inint() rounds a real to the nearest result integer
 #       Power of 10 to make integer genotypes for display
-        ndpwr = iround(10.^nd)
+        ndpwr = iround(10.0 ^ nd)
 
         @printf("\n+----------------------------------------------------------------+\n")
         @printf("|            Pikaia Genetic Algorithm Report                     |\n")
@@ -1084,18 +1099,6 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
     return (x, f, status)
 end # pikaia
 
-# *******************************************************************
-function result_rescaling(x, smin::Float64, smax::Float64, dmin::Float64, dmax::Float64)
-# ===================================================================
-# While one measurement
-# ===================================================================
-    xs = copy(x[1])
-    for i=1:length(xs)
-        xs = rescaling(xs[1], smin, smax, dmin, dmax)
-    end        
-    
-    (xs, abs(x[2]), x[3])
-end    
 
 end # Pikaia
 #
