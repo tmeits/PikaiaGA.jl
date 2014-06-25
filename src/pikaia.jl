@@ -297,8 +297,8 @@ function report(
     n::Int,                 #
     np::Int,                #
     nd::Int,                #
-    oldph::Matrix{Float64}, #
-    fitns::Vector{Float64}, #
+    oldph::Matrix{Float64}, # phenotype
+    fitns::Vector{Float64}, # eval fitness 
     ifit::Vector{Int},      #
     pmut::Float64,          # probability mutation rate 
     ig::Int,                #
@@ -336,7 +336,7 @@ function report(
         @printf(" %6i %6i %10.6f %10.6f %10.6f %10.6f \n",
             ig, nnew, pmut, fitns[ifit[np]], fitns[ifit[np-1]], fitns[ifit[np/2]])
         for k = 1:n
-            @printf(" %10i  %10i  %10i",
+            @printf(" %10i  %10i  %10i\n",
                 iround(ndpwr*oldph[k,ifit[np]]),
                 iround(ndpwr*oldph[k,ifit[np-1]]),
                 iround(ndpwr*oldph[k,ifit[np/2]]))
