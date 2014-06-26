@@ -189,6 +189,10 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
             ctrl[i] = DEFAULT[i]
         end
     end
+
+    @printf("setctl.ctrl= \n")
+    println(ctrl)
+
     np     = int(ctrl[1])  #
     ngen   = int(ctrl[2])  #
     nd     = int(ctrl[3])  #
@@ -201,6 +205,7 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
     irep   = int(ctrl[10]) #
     ielite = int(ctrl[11]) #
     ivrb   = int(ctrl[12]) #
+
     status = 0
 
 #   Print a header
@@ -209,10 +214,10 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
         @printf("+----------------------------------------------------------------+\n")
         @printf("|            Pikaia Genetic Algorithm Control                    |\n")
         @printf("+----------------------------------------------------------------+\n")
-        @printf("   Number of Generations evolving: %4i\n", ngen)
-        @printf("       Individuals per generation: %4i\n", np)
-        @printf("    Number of Chromosome segments: %4i\n", n)
-        @printf("    Length of Chromosome segments: %4i\n", nd)
+        @printf("   Number of Generations evolving: %4i\n",   ngen)
+        @printf("       Individuals per generation: %4i\n",   np)
+        @printf("    Number of Chromosome segments: %4i\n",   n)
+        @printf("    Length of Chromosome segments: %4i\n",   nd)
         @printf("            Crossover probability: %9.4f\n", pcross)
         @printf("            Initial mutation rate: %9.4f\n", pmut)
         @printf("            Minimum mutation rate: %9.4f\n", pmutmn)
@@ -240,6 +245,7 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
             @printf("                Reproduction Plan: Steady-state-replace-worst\n")
         end
     end
+
 # Check some control values
     if imut != 1 && imut != 2 && imut != 3 && imut != 4 && imut != 5 && imut != 6
         @printf(" ERROR: illegal value for imut (ctrl(5))\n")
@@ -285,7 +291,7 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
         @printf("WARNING: decreasing population size (ctrl(1)) to np= %4i\n", np)
     end
 
-    return (status, np, ngen, nd, imut, irep, ielite, ivrb, 
+    return (status, np, ngen, nd, imut, irep, ielite, ivrb,
         pcross, pmutmn, pmutmx, pmut, fdif)
 
 end
@@ -965,9 +971,8 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 #    o Integer  status  is an indicator of the success or failure
 #       of the call to pikaia (0=success; non-zero=failure)
 #
-#
 
-#   Constants !!!
+#   Constants 
     const NMAX = 32  
     const PMAX = 328  
     const DMAX = 6  
@@ -984,8 +989,11 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 #
 
 #   Set control variables from input and defaults
-    (status, np, ngen, nd, imut, irep, ielite, ivrb, 
+    (status, np, ngen, nd, imut, irep, ielite, ivrb,
         pcross, pmutmn, pmutmx, pmut, fdif) = setctl(ctrl, n)
+
+    @printf("pikaia.setctl return\n")
+    println( setctl(ctrl, n))
 
     if status != 0
         warn(" Control vector (ctrl) argument(s) invalid")
@@ -1011,20 +1019,27 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
         return (x, f, status)
     end
 
+#   Make sure locally-dimensioned arrays are big enough
+      if  n > NMAX || np > PMAX || nd > DMAX
+         warn(" Number of parameters, population, or genes too large")
+         status = -1
+         
+         return (x, f, status)
+      end
+
+
 #   Compute initial (random but bounded) phenotypes
 #   Rank initial population by fitness order
 
     (old_ph, fitns, ifit, jfit) = init_pop(ff, n, np)
  
-#    oldph = Array(Float64, n, np)
-
 #   Main Generation Loop
     for ig = 1:ngen
 
 #       Main Population Loop
         newtot = 0  
-        for ip = 1:int(np/2)
-
+        for ip = 1:fortran_int(np/2)
+        @printf("pikaia.np.ip= %6i %6i\n", np, ip)
 #           selection strategies            
 #           1. pick two parents
             ip1 = select(np, jfit, fdif)
@@ -1036,8 +1051,10 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
                     break
                 end
             end
+            @printf("pikaia.ip1.ip2= %6i %6i\n", ip1, ip2)
 #           2. encode parent phenotypes
             gn1=encode(n, nd, old_ph[:, ip1])
+            @printf("pikaia.gn1= %6i\n", gn1)
             gn2=encode(n, nd, old_ph[:, ip2])
 
 #           3. breed

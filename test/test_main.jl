@@ -433,7 +433,17 @@ function rastrigin_rescaling(x)
     return -1.*TestFunctions.rastrigin([rx])
 end # rastrigin_rescaling
 
+function rastrigin_rescaling_10(x)
+#   appropriately rescaling x
 
+    rx = Array(Float64, length(x))
+    
+    for i = 1:length(x)
+        rx[i] = Pikaia.rescaling(x[i] ,0., 1., -5., 5.)
+    end
+    
+    return -1.*TestFunctions.rastrigin(rx)
+end # rastrigin_rescaling_10
 
 
 # *********************************************************************
@@ -456,6 +466,7 @@ function create_vector(minx, maxx, count_elements)
 
     xs
 end
+
 using ASCIIPlots
 scatterplot(xs, map(rastrigin_rescaling, xs))
 
