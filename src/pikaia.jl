@@ -164,9 +164,9 @@ function set_ctrl_default(seed:: Int)
         ctrl = push!(ctrl, -1.0)
     end
 
-    ctrl[1]  = 100
-    ctrl[2]  = 500
-    ctrl[12] = 3
+    ctrl[1]  = 2500
+    ctrl[2]  = 4500
+    ctrl[12] = 1
     
     return ctrl
 end    
@@ -190,8 +190,8 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
         end
     end
 
-    @printf("setctl.ctrl= \n")
-    println(ctrl)
+#    @printf("setctl.ctrl= \n")
+#    println(ctrl)
 
     np     = int(ctrl[1])  #
     ngen   = int(ctrl[2])  #
@@ -674,22 +674,26 @@ function encode(n::Int, nd::Int,
 # ph(k) are x,y coordinates [ 0 < x,y < 1 ]
 # ====================================================================
 
-    gn = Array(Int, nd)             # genotype
+    gn = Array(Int, n*nd)             # genotype
 
     z  = 10.0 ^ nd
     ii = 0
 
     for i = 1:n                      # n parameters to encode
-        ip = int(floor(ph[i]*z))            # convert to integer
-#       @printf("ip = %6i\n", ip)
+#       ip = fortran_int(ph[i]*z)    # convert to integer
+        ip = int(ph[i]*z)            # convert to integer
+#        @printf("encode.ip = %6i\n", ip)
         for j = reverse([1:nd])      # nd genes per parameters
+#            @printf("encode.ii+j= %6i\n", ii+j)
             gn[ii+j] = mod(ip, 10)   # extract gene
             ip = fortran_int((ip/10))
-#           @printf("%6i %6i %9.4f %6i \n", ii, j,  mod(ip, 10), ip)
+#         @printf("encode %6i %6i %9.4f %6i\n", ii, j,  mod(ip, 10), ip)
         end
         ii = ii+nd                   # next block of ng genes
+#        @printf("encode.i= %6i next block of ng genes\n", i)
     end
-
+#    @printf("genotype=\n")
+#    println(gn)
     return gn
 end
 
@@ -973,8 +977,8 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 #
 
 #   Constants 
-    const NMAX = 32  
-    const PMAX = 328  
+    const NMAX = 52  
+    const PMAX = 7500  
     const DMAX = 6  
 #
 #   o NMAX is the maximum number of adjustable parameters
@@ -1039,7 +1043,7 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 #       Main Population Loop
         newtot = 0  
         for ip = 1:fortran_int(np/2)
-        @printf("pikaia.np.ip= %6i %6i\n", np, ip)
+#        @printf("pikaia.np.ip= %6i %6i\n", np, ip)
 #           selection strategies            
 #           1. pick two parents
             ip1 = select(np, jfit, fdif)
@@ -1051,10 +1055,11 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
                     break
                 end
             end
-            @printf("pikaia.ip1.ip2= %6i %6i\n", ip1, ip2)
+#            @printf("pikaia.ip1.ip2= %6i %6i\n", ip1, ip2)
 #           2. encode parent phenotypes
             gn1=encode(n, nd, old_ph[:, ip1])
-            @printf("pikaia.gn1= %6i\n", gn1)
+#            @printf("pikaia.gn1= ")
+#            println(gn1)
             gn2=encode(n, nd, old_ph[:, ip2])
 
 #           3. breed
