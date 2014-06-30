@@ -12,11 +12,14 @@ a = rand(1 : 50)
 @test Pikaia.setctl([100, 500, 7, .85, 7, .005, .0005, .25, 1, 1, 1, 0], 2)[1] == 5
 @test Pikaia.setctl([100, 500, 7, .85, 2, .005, .0005, .25, 1, 1, 1, 0], 2)[1] == 0
 
+# bad begin
 ng = [1: 55*6]
 @test length(Pikaia.encode(55, 6, rand(55), ng) ) == 330
 @test Pikaia.encode(55, 6, rand(55), ng)  == ng
 ng = [1: 55*6]
 @test Pikaia.encode(55, 6, rand(55), ng)  !=  [1: 55*6]
+
+# bad end
 
 @test Pikaia.mutate!(55,9, 0.85, [1 : 55*9], 1) != [1 : 55*9]
 
@@ -445,6 +448,9 @@ function rastrigin_rescaling_10(x)
     return -1.*TestFunctions.rastrigin(rx)
 end # rastrigin_rescaling_10
 
+test_ctrl = Pikaia.set_ctrl_default(423456)
+res=Pikaia.pikaia(rastrigin_rescaling, 1, test_ctrl)
+Pikaia.result_rescaling(res, 0.,1.,-5.,5.)
 
 # *********************************************************************
 function create_vector(minx, maxx, count_elements)
@@ -503,4 +509,13 @@ res=Pikaia.pikaia(rastrigin_rescaling, 1, test_ctrl)
 Pikaia.result_rescaling(res, 0.,1.,-5.,5.)
 
 # (-0.012221665193063558,0.02961916178932178,0)
+
+
+tic();res=Pikaia.pikaia(rastrigin_rescaling_10, 52, test_ctrl); toc(); res
+#==
+
+elapsed time: 3210.184468189 seconds
+([0.3225341631933889,0.3951574504592854,0.5690427699790921,0.6132575356853662,0.20636701598039164,0.5131621039858107,0.28890086334108056,0.6922534981118988,0.5815817885991592,0.171802119667948  …  0.40790150867079844,0.4419565866487847,0.311465174332779,0.6270205964774727,0.6774003472072601,0.40136348197812266,0.8855585917673301,0.08224333246654547,0.7630995512846699,0.48972798386029903],-646.4498210082729,0)
+
+=#
 

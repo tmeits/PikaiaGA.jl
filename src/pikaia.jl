@@ -996,8 +996,8 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
     (status, np, ngen, nd, imut, irep, ielite, ivrb,
         pcross, pmutmn, pmutmx, pmut, fdif) = setctl(ctrl, n)
 
-    @printf("pikaia.setctl return\n")
-    println( setctl(ctrl, n))
+#    @printf("pikaia.setctl return\n")
+#    println( setctl(ctrl, n))
 
     if status != 0
         warn(" Control vector (ctrl) argument(s) invalid")
