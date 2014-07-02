@@ -54,24 +54,33 @@ global _bestft = 0.0
 global _pmutpv = 0.0
 global _tprint = false
 
+# *******************************************************************
 function dbg(str::String)
+# ===================================================================
+#
+# ===================================================================
     global _tprint
 
     if _tprint == true
         print(str)
     end
 
-    true
+    return true
 end    
 
-function rescaling(value::Float64, smin::Float64, smax::Float64, dmin::Float64, dmax::Float64)
+# *******************************************************************
+function rescaling(value::Float64, smin::Float64, smax::Float64, 
+    dmin::Float64, dmax::Float64)
+# ===================================================================    
 # To transform number from one range to another.
-    return  ((value-smin) / (smax-smin)) * (dmax-dmin) + dmin
+# ===================================================================
 
+    return  ((value-smin) / (smax-smin)) * (dmax-dmin) + dmin
 end #function rescaling
 
 # *******************************************************************
-function result_rescaling(x, smin::Float64, smax::Float64, dmin::Float64, dmax::Float64)
+function result_rescaling(x, smin::Float64, smax::Float64, 
+    dmin::Float64, dmax::Float64)
 # ===================================================================
 # While one measurement
 # ===================================================================
@@ -80,7 +89,7 @@ function result_rescaling(x, smin::Float64, smax::Float64, dmin::Float64, dmax::
         xs = rescaling(xs[1], smin, smax, dmin, dmax)
     end        
     
-    (xs, abs(x[2]), x[3])
+    return (xs, abs(x[2]), x[3])
 end    
     
 
@@ -103,7 +112,7 @@ function get_random_int(rand_num_min::Int, rand_num_max::Int)
 
     rand_int = (fortran_int((rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min))
 
-    rand_int
+    return rand_int
 end
 
 # *********************************************************************
@@ -119,7 +128,7 @@ function get_random_int(num::Int, rand_num_min::Int, rand_num_max::Int)
             (fortran_int((rand() * (rand_num_max - rand_num_min + 1)) + rand_num_min)))
     end
 
-    rand_int
+    return rand_int
 end
 
 
@@ -164,8 +173,8 @@ function set_ctrl_default(seed:: Int)
         ctrl = push!(ctrl, -1.0)
     end
 
-    ctrl[1]  = 2500
-    ctrl[2]  = 4500
+    ctrl[1]  = 500
+    ctrl[2]  = 250
     ctrl[12] = 1
     
     return ctrl
@@ -179,7 +188,7 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
 # =====================================================================
 
     const DEFAULT = 
-        [100, 500, 5, .85, 2, .005, .0005, .25, 1, 1, 1, 0]
+        [100, 500, 6, .85, 2, .005, .0005, .25, 1, 3, 1, 1]
 
     global _bestft::Float64 = 0.0
     global _pmutpv::Float64 = 0.0
@@ -417,7 +426,7 @@ function steady_state_reproduction!(
 #       2. if fit enough, insert in population
         for i = reverse(1:np)
             if fit > fitns[ifit[i]]
-                @printf("steady_state_reproduction! fit>")
+#               @printf("steady_state_reproduction! fit>")
 #               make sure the phenotype is not already in the population
                 if i < np
                     for k = 1:n
@@ -477,7 +486,7 @@ function steady_state_reproduction!(
         end # for i
     end # for j
     
-    return oldph
+    return nnew #oldph
 
 end # function steady_state_reproduction!
 # http://blog.yhathq.com/posts/julia-neural-networks.html
@@ -1079,7 +1088,8 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 # full generational replacement: accumulate offspring into new population array              
                 new_ph = generational_replacement(n, np, ip, ph, new_ph)
             else
-                steady_state_reproduction!(ff, n, np, irep, ielite, ph, oldphm, fitns, ifit, jfit)
+                new = steady_state_reproduction!(
+                    ff, n, np, irep, ielite, ph, old_ph, fitns, ifit, jfit)
                 newtot = newtot+new
             end # insertion/storage completed
             # ==============================
