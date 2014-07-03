@@ -175,6 +175,7 @@ function set_ctrl_default(seed:: Int)
 
     ctrl[1]  = 500
     ctrl[2]  = 250
+
     ctrl[12] = 1
     
     return ctrl
@@ -254,7 +255,7 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
             @printf("                Reproduction Plan: Steady-state-replace-worst\n")
         end
     end
-
+# add print elitism
 # Check some control values
     if imut != 1 && imut != 2 && imut != 3 && imut != 4 && imut != 5 && imut != 6
         @printf(" ERROR: illegal value for imut (ctrl(5))\n")
