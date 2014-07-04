@@ -254,6 +254,12 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
         elseif irep == 3
             @printf("                Reproduction Plan: Steady-state-replace-worst\n")
         end
+
+        if ielite == 0
+            @printf("                Elitism flag == off\n")
+        else
+            @printf("elitism flag == on (Applies only to reproduction plans 1 and 2)\n")
+        end
     end
 # add print elitism
 # Check some control values
