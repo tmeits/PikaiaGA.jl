@@ -86,13 +86,12 @@ function result_rescaling(x, smin::Float64, smax::Float64,
 # ===================================================================
     xs = copy(x[1])
     for i=1:length(xs)
-        xs = rescaling(xs[1], smin, smax, dmin, dmax)
+        xs[i] = rescaling(xs[i], smin, smax, dmin, dmax)
     end        
     
     return (xs, abs(x[2]), x[3])
 end    
     
-
 # *********************************************************************
 function fortran_int(var:: Float64)
 # =====================================================================
@@ -130,8 +129,6 @@ function get_random_int(num::Int, rand_num_min::Int, rand_num_max::Int)
 
     return rand_int
 end
-
-
 
 # *********************************************************************    
 function rqsort(n:: Int, a:: Vector{Float64})
@@ -700,7 +697,7 @@ function encode(n::Int, nd::Int,
         ip = int(ph[i]*z)            # convert to integer
 #        @printf("encode.ip = %6i\n", ip)
         for j = reverse([1:nd])      # nd genes per parameters
-#            @printf("encode.ii+j= %6i\n", ii+j)
+#           @printf("encode.ii+j= %6i\n", ii+j)
             gn[ii+j] = mod(ip, 10)   # extract gene
             ip = fortran_int((ip/10))
 #         @printf("encode %6i %6i %9.4f %6i\n", ii, j,  mod(ip, 10), ip)
@@ -742,8 +739,6 @@ function decode(n::Int, nd::Int, gn::Vector{Int})
 
     return ph
 end
-
-
 
 # http://mathmod.aspu.ru/images/File/ebooks/GAfinal.pdf 
 # *********************************************************************
@@ -975,7 +970,7 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 # algorithm method.
 # =====================================================================
 
-# Version 0.0.1   [ 2014 February 21 ]
+# Version 0.0.2   [ 2014 Julius 7 ]
 
 #   Output:
     x       = rand(n)
@@ -1137,7 +1132,6 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 # Return in typle
     return (x, f, status)
 end # pikaia
-
 
 end # Pikaia
 #
