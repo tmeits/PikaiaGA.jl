@@ -170,10 +170,10 @@ function set_ctrl_default(seed:: Int)
         ctrl = push!(ctrl, -1.0)
     end
 
-    ctrl[1]  = 500
-    ctrl[2]  = 250
+    ctrl[1]  = 450
+    ctrl[2]  = 750
 
-    ctrl[12] = 1
+    ctrl[12] = 2
     
     return ctrl
 end    
