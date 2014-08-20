@@ -1,7 +1,9 @@
 # *********************************************************************
+#
 # Pikaia is a general purpose function optimization Julia lang module 
 # based on a genetic algorithm.
-# **********************************************************************
+#
+# *********************************************************************
 
 # include("pikaia.jl")
 # include("testfunctions.jl")
