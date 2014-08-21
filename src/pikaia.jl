@@ -23,7 +23,6 @@ export
     fortran_int,
     get_random_int,
 
-
 # SYSTEM FUNCTION
     
     set_ctrl_default,
@@ -59,7 +58,7 @@ global _tprint = false
 # *******************************************************************
 function dbg(str::String)
 # ===================================================================
-#
+# debug print string
 # ===================================================================
     global _tprint
 
@@ -68,7 +67,7 @@ function dbg(str::String)
     end
 
     return true
-end    
+end # finction dbg    
 
 # *******************************************************************
 function rescaling(value::Float64, smin::Float64, smax::Float64, 
@@ -967,12 +966,15 @@ end
 # *********************************************************************
 function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 # =====================================================================
+#
 # Optimization (maximization) of user-supplied "fitness" function
 # ff over n-dimensional parameter space  x  using a basic genetic 
 # algorithm method.
+#
 # =====================================================================
 
-# Version 0.0.2   [ 2014 Julius 7 ]
+# Pikaia Version 0.0.4   [ 2014 August 20 ]
+# Julia Version 0.2.1 (2014-01-30 13:47 UTC)
 
 #   Output:
     x       = rand(n)
