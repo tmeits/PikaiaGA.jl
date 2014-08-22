@@ -1,4 +1,10 @@
+# ********************************************************************
+#
 # «triple-triple redundant architecture»
+#
+# ********************************************************************
+
+module TestPikaia
 
 using Base.Test
 using TestFunctions
@@ -638,4 +644,6 @@ julia> Profile.print(format=:flat)
 julia> 
 
 =#
+
+end # TestPikaia
 
