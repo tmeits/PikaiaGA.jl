@@ -8,7 +8,7 @@
 # include("pikaia.jl")
 # include("testfunctions.jl")
 
-module Pikaia
+module Pikaia # Tiktaalik
 
 importall Base
 
