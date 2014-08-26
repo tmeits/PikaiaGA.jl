@@ -181,7 +181,7 @@ end
 
 
 # *********************************************************************
-function setctl(ctrl::Array{Float64, 1}, n:: Int)
+function setctl(ctrl::Array{Float64, 1})
 # =====================================================================    
 # Set control variables and flags from input and defaults
 # =====================================================================
@@ -201,18 +201,18 @@ function setctl(ctrl::Array{Float64, 1}, n:: Int)
 #    @printf("setctl.ctrl= \n")
 #    println(ctrl)
 
-    np     = int(ctrl[1])  #
-    ngen   = int(ctrl[2])  #
-    nd     = int(ctrl[3])  #
-    pcross = ctrl[4]       #
-    imut   = int(ctrl[5])  #
-    pmut   = ctrl[6]       #
-    pmutmn = ctrl[7]       #
-    pmutmx = ctrl[8]       #
-    fdif   = ctrl[9]       #
-    irep   = int(ctrl[10]) #
-    ielite = int(ctrl[11]) #
-    ivrb   = int(ctrl[12]) #
+    np     = int(ctrl[1])  # Number of individuals in a population
+    ngen   = int(ctrl[2])  # Number of generations over which solution is to evolve
+    nd     = int(ctrl[3])  # Number of significant digits
+    pcross = ctrl[4]       # Crossover probability
+    imut   = int(ctrl[5])  # Mutation mode
+    pmut   = ctrl[6]       # Initial mutation rate
+    pmutmn = ctrl[7]       # Minimum mutation rate
+    pmutmx = ctrl[8]       # Maximum mutation rate
+    fdif   = ctrl[9]       # Relative fitness differential
+    irep   = int(ctrl[10]) # Reproduction plan
+    ielite = int(ctrl[11]) # Elitism flag
+    ivrb   = int(ctrl[12]) # Printed output
 
     status = 0
 
@@ -1009,10 +1009,10 @@ function pikaia(ff::Function, n::Int, ctrl::Vector{Float64})
 
 #   Set control variables from input and defaults
     (status, np, ngen, nd, imut, irep, ielite, ivrb,
-        pcross, pmutmn, pmutmx, pmut, fdif) = setctl(ctrl, n)
+        pcross, pmutmn, pmutmx, pmut, fdif) = setctl(ctrl)
 
 #    @printf("pikaia.setctl return\n")
-#    println( setctl(ctrl, n))
+#    println( setctl(ctrl))
 
     if status != 0
         warn(" Control vector (ctrl) argument(s) invalid")
