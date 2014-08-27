@@ -19,15 +19,17 @@ a = rand(50)
 @test Pikaia.setctl([100, 500, 7, .85, 0, .005, .0005, .25, 1, 1, 1, 0])[1] == 5
 @test Pikaia.setctl([100, 500, 7, .85, 7, .005, .0005, .25, 1, 1, 1, 0])[1] == 5
 @test Pikaia.setctl([100, 500, 7, .85, 2, .005, .0005, .25, 1, 1, 1, 0])[1] == 0
+# Relative fitness differential
+@test Pikaia.setctl([100, 500, 7, .85, 2, .005, .0005, .25, 2, 1, 1, 0])[1] == 9
 
-# bad begin
+# 3
+
 ng = [1: 55*6]
 @test length(Pikaia.encode(55, 6, rand(55), ng) ) == 330
 @test Pikaia.encode(55, 6, rand(55), ng)  == ng
 ng = [1: 55*6]
 @test Pikaia.encode(55, 6, rand(55), ng)  !=  [1: 55*6]
 
-# bad end
 
 @test Pikaia.mutate!(55,9, 0.85, [1 : 55*9], 1) != [1 : 55*9]
 
