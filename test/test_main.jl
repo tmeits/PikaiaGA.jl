@@ -23,7 +23,8 @@ a = rand(50)
 @test Pikaia.setctl([100, 500, 7, .85, 2, .005, .0005, .25, 2, 1, 1, 0])[1] == 9
 
 # 3
-
+d=6
+c=55
 ng = [1: 55*6]
 @test length(Pikaia.encode(55, 6, rand(55), ng) ) == 330
 @test Pikaia.encode(55, 6, rand(55), ng)  == ng

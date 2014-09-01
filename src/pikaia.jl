@@ -680,34 +680,36 @@ end
 # using ASCIIPlots
 
 # ********************************************************************
-function encode(n::Int, nd::Int, 
+function encode(
+    n::Int, 
+    nd::Int,            # 
     ph::Vector{Float64} # fenotype
     )
 # ====================================================================    
 # encode phenotype parameters into integer genotype
-# ph(k) are x,y coordinates [ 0 < x,y < 1 ]
+# ph(k) are x,y coordinates [ 0 < x, y < 1 ]
 # ====================================================================
 
-    gn = Array(Int, n*nd)             # genotype
+    gn = Array(Int, n*nd)            # genotype
 
-    z  = 10.0 ^ nd
+    z  = 10.0 ^ nd                   #
     ii = 0
 
     for i = 1:n                      # n parameters to encode
 #       ip = fortran_int(ph[i]*z)    # convert to integer
         ip = int(ph[i]*z)            # convert to integer
-#        @printf("encode.ip = %6i\n", ip)
+#       @printf("encode.ip = %6i\n", ip)
         for j = reverse([1:nd])      # nd genes per parameters
 #           @printf("encode.ii+j= %6i\n", ii+j)
             gn[ii+j] = mod(ip, 10)   # extract gene
             ip = fortran_int((ip/10))
-#         @printf("encode %6i %6i %9.4f %6i\n", ii, j,  mod(ip, 10), ip)
+#           @printf("encode %6i %6i %9.4f %6i\n", ii, j,  mod(ip, 10), ip)
         end
         ii = ii+nd                   # next block of ng genes
-#        @printf("encode.i= %6i next block of ng genes\n", i)
+#       @printf("encode.i= %6i next block of ng genes\n", i)
     end
-#    @printf("genotype=\n")
-#    println(gn)
+#   @printf("genotype=\n")
+#   println(gn)
     return gn
 end
 
