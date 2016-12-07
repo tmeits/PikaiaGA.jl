@@ -2,6 +2,7 @@
 #
 # Pikaia is a general purpose function optimization Julia lang module 
 # based on a genetic algorithm.
+# vs-genn.ru/de
 #
 # *********************************************************************
 
